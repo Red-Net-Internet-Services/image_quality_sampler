@@ -1,28 +1,12 @@
-"""CLI interface for image_quality_sampler project.
+import sys
 
-Be creative! do whatever you want!
+from PyQt5.QtWidgets import QApplication
 
-- Install click or typer and create a CLI app
-- Use builtin argparse
-- Start a web application
-- Import things from your .base module
-"""
+from image_quality_sampler.GUI import ImageSamplerApp
 
 
 def main():  # pragma: no cover
-    """
-    The main function executes on commands:
-    `python -m image_quality_sampler` and `$ image_quality_sampler `.
-
-    This is your program's entry point.
-
-    You can change this function to do whatever you want.
-    Examples:
-        * Run a test suite
-        * Run a server
-        * Do some other stuff
-        * Run a command line application (Click, Typer, ArgParse)
-        * List all available tasks
-        * Run an application (Flask, FastAPI, Django, etc.)
-    """
-    print("This will do something")
+    # print("This will do something")
+    app = QApplication(sys.argv)
+    ex = ImageSamplerApp()
+    sys.exit(app.exec_())
