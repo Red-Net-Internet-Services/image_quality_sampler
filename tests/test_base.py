@@ -1,5 +1,5 @@
-from project_name.base import NAME
+from image_quality_sampler.base import NAME
 
 
 def test_base():
-    assert NAME == "project_name"
+    assert NAME == "image_quality_sampler"
