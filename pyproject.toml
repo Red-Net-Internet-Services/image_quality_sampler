@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "image-qc"
+version = "0.1.0"
+description = ""
+authors = ["rochacbruno"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8.10"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+coverage = "^7.3.0"
+black = "^23.7.0"
+isort = "^5.12.0"
+pytest-cov = "^4.1.0"
+mypy = "^1.5.1"
+gitchangelog = "^3.0.4"
+mkdocs = "^1.5.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+image_quality_sampler = 'image_quality_sampler.__main__:main'
