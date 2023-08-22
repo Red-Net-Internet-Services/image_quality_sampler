@@ -1,8 +1,12 @@
 import os
+import sys
 
-# Base directory of the application
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+# Check if we're running as a bundled application
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    
 # Resource paths
 RESOURCE_PATH = os.path.join(BASE_DIR, "resources")
 ICON_PATH = os.path.join(RESOURCE_PATH, "icons")
