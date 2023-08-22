@@ -11,6 +11,7 @@ pillow = "^10.0.0"
 reportlab = "^4.0.4"
 pyqt5 = "^5.15.9"
 pyqt5-tools = "^5.15.9.3.3"
+exifread = "^3.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
