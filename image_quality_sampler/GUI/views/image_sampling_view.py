@@ -2,7 +2,7 @@ import os
 import random
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QRectF, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction,
@@ -22,8 +22,9 @@ from image_quality_sampler.GUI.utils.helpers import extract_image_metadata
 
 
 class ImageSamplingView(QWidget):
-    def __init__(self, folder_path, sample_size, rejection_size):
+    def __init__(self, folder_path, sample_size, rejection_size, central_view):
         super().__init__()
+        self.main_window = central_view
         self.folder_path = folder_path
         self.sample_size = sample_size
         self.rejection_size = rejection_size
@@ -110,6 +111,7 @@ class ImageSamplingView(QWidget):
         self.graphics_view = QGraphicsView(self)
         self.graphics_scene = QGraphicsScene()
         self.graphics_view.setScene(self.graphics_scene)
+        self.graphics_view.setAlignment(Qt.AlignCenter)
         self.image_display_layout.addWidget(self.graphics_view)
         self.metadata_label = QLabel(self)
 
@@ -141,6 +143,10 @@ class ImageSamplingView(QWidget):
         self.image_display_layout.addLayout(img_metadata_layout)
         self.setLayout(self.image_display_layout)
 
+        # Set the objectName for CSS
+        self.acceptButton.setObjectName("acceptButton")
+        self.rejectButton.setObjectName("rejectButton")
+
     def select_random_images(self):
         all_images = [
             f
@@ -156,11 +162,13 @@ class ImageSamplingView(QWidget):
 
         # Update QGraphicsView content
         self.graphics_scene.clear()  # Clear previous content
+        self.zoom_1_1()
         self.graphics_scene.addPixmap(pixmap)
+        self.graphics_scene.setSceneRect(QRectF(pixmap.rect()))
 
         # Ensure the QGraphicsView displays the image without any smoothing
         self.graphics_view.setRenderHint(
-            QtGui.QPainter.SmoothPixmapTransform, False
+            QtGui.QPainter.SmoothPixmapTransform, True
         )
         self.graphics_view.setRenderHint(QtGui.QPainter.Antialiasing, False)
 
@@ -182,6 +190,7 @@ class ImageSamplingView(QWidget):
             QMessageBox.information(
                 self, "Done", "All images have been processed."
             )
+            self.main_window.show()
             self.close()  # Close the view
 
     def reject_image(self):

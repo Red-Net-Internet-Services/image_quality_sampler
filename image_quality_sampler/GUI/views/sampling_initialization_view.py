@@ -1,55 +1,74 @@
 import os
 
 from PyQt5.QtWidgets import (
+    QDialog,
     QFileDialog,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
     QVBoxLayout,
-    QWidget,
 )
 
-from .image_sampling_view import ImageSamplingView
+from image_quality_sampler.GUI.views.image_sampling_view import (
+    ImageSamplingView,
+)
 
 
-class SamplingInitializationView(QWidget):
-    def __init__(self):
+class SamplingInitializationView(QDialog):
+    def __init__(self, central_view):
         super().__init__()
 
-        self.setWindowTitle("Sampler Config")
+        self.main_window = central_view
 
-        # Layout
-        layout = QVBoxLayout()
+        self.setWindowTitle("Sampler Config")
+        # self.resize(800, 600)
+
+        # Main Layout
+        mainLayout = QVBoxLayout()
+        # Adjust the spacing between widgets
+        mainLayout.setSpacing(10)
+        mainLayout.addStretch(1)
 
         # Folder Selection
+        folderLayout = QHBoxLayout()
         self.folderLabel = QLabel("Folder Path:")
         self.folderInput = QLineEdit(self)
         self.browseButton = QPushButton("Browse", self)
         self.browseButton.clicked.connect(self.browseFolder)
-
-        layout.addWidget(self.folderLabel)
-        layout.addWidget(self.folderInput)
-        layout.addWidget(self.browseButton)
+        folderLayout.addWidget(self.folderLabel)
+        folderLayout.addWidget(self.folderInput)
+        folderLayout.addWidget(self.browseButton)
+        mainLayout.addLayout(folderLayout)
 
         # Sample Size Input
+        sampleSizeLayout = QHBoxLayout()
         self.sampleSizeLabel = QLabel("Sample Size:")
         self.sampleSizeInput = QLineEdit(self)
-        layout.addWidget(self.sampleSizeLabel)
-        layout.addWidget(self.sampleSizeInput)
+        sampleSizeLayout.addWidget(self.sampleSizeLabel)
+        sampleSizeLayout.addWidget(self.sampleSizeInput)
+        mainLayout.addLayout(sampleSizeLayout)
 
         # Rejection Size Input
+        rejectionSizeLayout = QHBoxLayout()
         self.rejectionSizeLabel = QLabel("Rejection Size:")
         self.rejectionSizeInput = QLineEdit(self)
-        layout.addWidget(self.rejectionSizeLabel)
-        layout.addWidget(self.rejectionSizeInput)
+        rejectionSizeLayout.addWidget(self.rejectionSizeLabel)
+        rejectionSizeLayout.addWidget(self.rejectionSizeInput)
+        mainLayout.addLayout(rejectionSizeLayout)
 
-        # Start Sampling Button
+        # Buttons
+        buttonLayout = QHBoxLayout()
         self.startButton = QPushButton("Start Sampling", self)
         self.startButton.clicked.connect(self.startSampling)
-        layout.addWidget(self.startButton)
+        buttonLayout.addWidget(self.startButton)
+        self.cancelButton = QPushButton("Cancel Sampling", self)
+        self.cancelButton.clicked.connect(self.reject)
+        buttonLayout.addWidget(self.cancelButton)
+        mainLayout.addLayout(buttonLayout)
 
-        self.setLayout(layout)
+        self.setLayout(mainLayout)
 
     def browseFolder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder")
@@ -108,12 +127,9 @@ class SamplingInitializationView(QWidget):
             return
 
         # If everything is valid, proceed to the sampling process
-        # Placeholder for now, we'll implement the actual sampling process
-        QMessageBox.information(
-            self, "Success", "Starting the sampling process..."
-        )
-        # If everything is valid, proceed to the sampling process
         self.sampling_view = ImageSamplingView(
-            folder_path, sample_size, rejection_size
+            folder_path, sample_size, rejection_size, self.main_window
         )
+        self.accept()
+        self.main_window.hide()
         self.sampling_view.show()

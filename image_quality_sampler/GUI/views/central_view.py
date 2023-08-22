@@ -33,5 +33,5 @@ class CentralView(QMainWindow):
 
     def open_sampling_initialization_view(self):
         # Open the Sampling Initialization View
-        self.sampling_init_view = SamplingInitializationView()
-        self.sampling_init_view.show()
+        self.sampling_init_view = SamplingInitializationView(self)
+        self.sampling_init_view.exec_()
