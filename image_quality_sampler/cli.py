@@ -6,7 +6,7 @@ from image_quality_sampler.GUI import ImageSamplerApp
 
 
 def main():  # pragma: no cover
-    # print("This will do something")
     app = QApplication(sys.argv)
     ex = ImageSamplerApp()
+    ex.show()
     sys.exit(app.exec_())

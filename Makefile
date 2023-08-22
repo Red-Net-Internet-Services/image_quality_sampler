@@ -16,6 +16,10 @@ show:             ## Show the current environment.
 install:          ## Install the project in dev mode.
 	@poetry install
 
+.PHONY: run
+run:          ## Install the project in dev mode.
+	@poetry run image_quality_sampler
+
 .PHONY: fmt
 fmt:              ## Format code using black & isort.
 	poetry run isort image_quality_sampler/
@@ -41,19 +45,11 @@ watch:            ## Run tests on every change.
 
 .PHONY: clean
 clean:            ## Clean unused files.
-	@find ./ -name '*.pyc' -exec rm -f {} \;
-	@find ./ -name '__pycache__' -exec rm -rf {} \;
-	@find ./ -name 'Thumbs.db' -exec rm -f {} \;
-	@find ./ -name '*~' -exec rm -f {} \;
-	@rm -rf .cache
-	@rm -rf .pytest_cache
-	@rm -rf .mypy_cache
-	@rm -rf build
-	@rm -rf dist
-	@rm -rf *.egg-info
-	@rm -rf htmlcov
-	@rm -rf .tox/
-	@rm -rf docs/_build
+ifeq ($(OS),Windows_NT)
+	@clean.bat
+else
+	@./clean.sh
+endif
 
 .PHONY: virtualenv
 virtualenv:       ## Create a virtual environment.
