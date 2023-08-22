@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from image_quality_sampler import config
 from image_quality_sampler.GUI.utils.helpers import extract_image_metadata
 
 
@@ -49,28 +50,36 @@ class ImageSamplingView(QWidget):
 
         # Zoom In
         zoom_in_action = QAction(
-            QIcon("path_to_zoom_in_icon.png"), "Zoom In", self
+            QIcon(os.path.join(config.ICON_PATH, "zoom_in.png")),
+            "Zoom In",
+            self,
         )
         zoom_in_action.triggered.connect(self.zoom_in)
         self.toolbar.addAction(zoom_in_action)
 
         # Zoom Out
         zoom_out_action = QAction(
-            QIcon("path_to_zoom_out_icon.png"), "Zoom Out", self
+            QIcon(os.path.join(config.ICON_PATH, "zoom_out.png")),
+            "Zoom Out",
+            self,
         )
         zoom_out_action.triggered.connect(self.zoom_out)
         self.toolbar.addAction(zoom_out_action)
 
         # Zoom 1:1
         zoom_1_1_action = QAction(
-            QIcon("path_to_zoom_1_1_icon.png"), "Zoom 1:1", self
+            QIcon(os.path.join(config.ICON_PATH, "zoom_1_1.png")),
+            "Zoom 1:1",
+            self,
         )
         zoom_1_1_action.triggered.connect(self.zoom_1_1)
         self.toolbar.addAction(zoom_1_1_action)
 
         # Zoom to Fit View
         zoom_fit_action = QAction(
-            QIcon("path_to_zoom_fit_icon.png"), "Zoom to Fit", self
+            QIcon(os.path.join(config.ICON_PATH, "zoom_fit.png")),
+            "Zoom to Fit",
+            self,
         )
         zoom_fit_action.triggered.connect(self.zoom_fit)
         self.toolbar.addAction(zoom_fit_action)
