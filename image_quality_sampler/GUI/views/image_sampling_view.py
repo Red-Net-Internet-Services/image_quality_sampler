@@ -24,6 +24,7 @@ from image_quality_sampler.GUI.utils.helpers import extract_image_metadata
 class ImageSamplingView(QWidget):
     def __init__(self, folder_path, sample_size, rejection_size, central_view):
         super().__init__()
+        self.exit_flag = True
         self.main_window = central_view
         self.folder_path = folder_path
         self.sample_size = sample_size
@@ -186,6 +187,7 @@ class ImageSamplingView(QWidget):
         if self.current_image_index < self.sample_size:
             self.display_image()
         else:
+            self.exit_flag = False
             # All images have been processed
             QMessageBox.information(
                 self, "Done", "All images have been processed."
@@ -212,3 +214,20 @@ class ImageSamplingView(QWidget):
         self.rejectionsLabel.setText(
             f"Rejections: {self.rejections}/{self.rejection_size}"
         )
+
+    def closeEvent(self, event):
+        if self.exit_flag:
+            reply = QMessageBox.question(
+                self,
+                'Confirm Exit',
+                'All progress will be lost. Are you sure you want to exit?',
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+
+            if reply == QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
