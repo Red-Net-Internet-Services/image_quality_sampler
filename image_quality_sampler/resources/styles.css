@@ -1,0 +1,45 @@
+/* General styles for all buttons */
+QPushButton {
+    font-size: 12px;
+    min-height: 30px;
+    min-width: 80px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Hover effect for buttons */
+QPushButton:hover {
+    background-color: #e5e5e5;
+}
+
+/* Styles for the Accept button */
+QPushButton#acceptButton {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+/* Styles for the Reject button */
+QPushButton#rejectButton {
+    background-color: #f44336; /* Red */
+    color: white;
+}
+
+/* Styles for toolbar buttons */
+QToolBar QPushButton {
+    background-color: #2196F3; /* Blue */
+    color: white;
+}
+
+/* Styles for labels */
+QLabel {
+    font-size: 16px;
+    color: #333;
+}
+
+/* If you have a specific label that needs different styling, you can use an object name */
+QLabel#specialLabel {
+    font-weight: bold;
+    color: #555;
+}

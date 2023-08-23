@@ -7,27 +7,7 @@
 
 Awesome image_quality_sampler created by Red-Net-Internet-Services
 
-## Install it from PyPI
-
-```bash
-pip install image_quality_sampler
-```
-
-## Usage
-
-```py
-from image_quality_sampler import BaseClass
-from image_quality_sampler import base_function
-
-BaseClass().base_method()
-base_function()
-```
-
-```bash
-$ python -m image_quality_sampler
-#or
-$ image_quality_sampler
-```
+This readme is still in writing. Check back in a couple of days
 
 ## Development
 
