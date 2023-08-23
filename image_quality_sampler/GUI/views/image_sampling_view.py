@@ -219,13 +219,14 @@ class ImageSamplingView(QWidget):
         if self.exit_flag:
             reply = QMessageBox.question(
                 self,
-                'Confirm Exit',
-                'All progress will be lost. Are you sure you want to exit?',
+                "Confirm Exit",
+                "All progress will be lost. Are you sure you want to exit?",
                 QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
+                QMessageBox.No,
             )
 
             if reply == QMessageBox.Yes:
+                self.main_window.show()
                 event.accept()
             else:
                 event.ignore()
