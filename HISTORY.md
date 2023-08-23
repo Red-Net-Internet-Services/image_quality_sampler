@@ -7,6 +7,7 @@ Changelog
 - Release: version  🚀 [Chris Maikos]
 - Release: version  🚀 [Chris Maikos]
 - Release: version  🚀 [Chris Maikos]
+- Release: version  🚀 [Chris Maikos]
 - Fix(makefile): Alter release instruction to not hang. [Chris Maikos]
 - Release: version  🚀 [Chris Maikos]
 - Release: version  🚀 [Chris Maikos]
