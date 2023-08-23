@@ -1,8 +1,8 @@
 import os
 import random
 
-from PyQt5 import QtGui
 from PyQt5.QtCore import QRectF, Qt
+from PyQt5 import QtGui
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction,
@@ -110,6 +110,7 @@ class ImageSamplingView(QWidget):
         # Image and metadata layout
         # Initialize QGraphicsView here
         self.graphics_view = QGraphicsView(self)
+        self.graphics_view.setMinimumSize(50, 500)
         self.graphics_scene = QGraphicsScene()
         self.graphics_view.setScene(self.graphics_scene)
         self.graphics_view.setAlignment(Qt.AlignCenter)
@@ -128,20 +129,16 @@ class ImageSamplingView(QWidget):
         self.acceptButton.clicked.connect(self.accept_image)
         self.rejectButton.clicked.connect(self.reject_image)
 
-        btn_layout = QVBoxLayout()
+        btn_layout = QHBoxLayout()
         btn_layout.addWidget(self.acceptButton)
         btn_layout.addWidget(self.rejectButton)
 
         # Layout adjustments
-        right_side_layout = QVBoxLayout()
-        right_side_layout.addWidget(self.metadata_label)
-        right_side_layout.addLayout(btn_layout)
-        right_side_layout.addStretch()
+        meta_layout = QVBoxLayout()
+        meta_layout.addWidget(self.metadata_label)
+        meta_layout.addLayout(btn_layout)
 
-        img_metadata_layout = QHBoxLayout()
-        img_metadata_layout.addLayout(right_side_layout, 0)
-
-        self.image_display_layout.addLayout(img_metadata_layout)
+        self.image_display_layout.addLayout(meta_layout)
         self.setLayout(self.image_display_layout)
 
         # Set the objectName for CSS
@@ -161,18 +158,6 @@ class ImageSamplingView(QWidget):
         img_path = os.path.join(self.folder_path, img_name)
         pixmap = QPixmap(img_path)
 
-        # Update QGraphicsView content
-        self.graphics_scene.clear()  # Clear previous content
-        self.zoom_1_1()
-        self.graphics_scene.addPixmap(pixmap)
-        self.graphics_scene.setSceneRect(QRectF(pixmap.rect()))
-
-        # Ensure the QGraphicsView displays the image without any smoothing
-        self.graphics_view.setRenderHint(
-            QtGui.QPainter.SmoothPixmapTransform, True
-        )
-        self.graphics_view.setRenderHint(QtGui.QPainter.Antialiasing, False)
-
         # Extract metadata
         metadata_dict = extract_image_metadata(img_path)
         metadata_text = "\n".join(
@@ -181,6 +166,16 @@ class ImageSamplingView(QWidget):
         self.metadata_label.setText(metadata_text)
 
         self.update_counters()
+
+        # Update QGraphicsView content
+        self.graphics_scene.clear()  # Clear previous content
+        self.graphics_scene.addPixmap(pixmap)
+        self.graphics_scene.setSceneRect(QRectF(pixmap.rect()))
+
+        # Calculate the scaling factor
+        scale_factor = self.graphics_view.height() / pixmap.height()
+        self.graphics_view.setTransform(QtGui.QTransform().scale(scale_factor,
+                                                                 scale_factor))
 
     def accept_image(self):
         self.current_image_index += 1
@@ -203,6 +198,8 @@ class ImageSamplingView(QWidget):
                 "Batch Rejected",
                 "The batch has been rejected due to excessive errors.",
             )
+            self.exit_flag = False
+            self.main_window.show()
             self.close()  # Close the view
             return
         self.accept_image()  # Move to the next image

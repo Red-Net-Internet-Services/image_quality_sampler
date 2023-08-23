@@ -14,9 +14,9 @@ def extract_image_metadata(img_path):
         channels = len(img.getbands())
         metadata["Color depth"] = f"{img.bits * channels}bit {img.mode}"
         metadata["File type"] = img.format
-        metadata["Size"] = round(
-            os.path.getsize(img_path) / (1024 * 1024), 2
-        )  # in MB
+        metadata[
+            "Size"
+        ] = f"{round(os.path.getsize(img_path) / (1024 * 1024), 2)} MB"
         metadata["Filename"] = os.path.basename(img_path)
 
     # Using exifread for more detailed metadata
