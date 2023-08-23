@@ -1,5 +1,7 @@
 import datetime
+import mimetypes
 import os
+import random
 
 import exifread
 from PIL import Image
@@ -39,3 +41,15 @@ def extract_image_metadata(img_path):
         ) or str(exif_data.get("Image Software", None))
 
     return metadata
+
+
+def select_random_images(folder_path, sample_size):
+    all_images = [
+        f
+        for f in os.listdir(folder_path)
+        if mimetypes.guess_type(os.path.join(folder_path, f))[0]
+        and mimetypes.guess_type(os.path.join(folder_path, f))[0].startswith(
+            "image/"
+        )
+    ]
+    return random.sample(all_images, sample_size)

@@ -1,8 +1,7 @@
 import os
-import random
 
-from PyQt5.QtCore import QRectF, Qt
 from PyQt5 import QtGui
+from PyQt5.QtCore import QRectF, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction,
@@ -18,7 +17,10 @@ from PyQt5.QtWidgets import (
 )
 
 from image_quality_sampler import config
-from image_quality_sampler.GUI.utils.helpers import extract_image_metadata
+from image_quality_sampler.GUI.utils.helpers import (
+    extract_image_metadata,
+    select_random_images,
+)
 
 
 class ImageSamplingView(QWidget):
@@ -31,7 +33,7 @@ class ImageSamplingView(QWidget):
         self.rejection_size = rejection_size
         self.rejections = 0
         self.current_image_index = 0
-        self.images = self.select_random_images()
+        self.images = select_random_images(self.folder_path, self.sample_size)
         self.initUI()
 
     def initUI(self):
@@ -145,14 +147,6 @@ class ImageSamplingView(QWidget):
         self.acceptButton.setObjectName("acceptButton")
         self.rejectButton.setObjectName("rejectButton")
 
-    def select_random_images(self):
-        all_images = [
-            f
-            for f in os.listdir(self.folder_path)
-            if f.endswith((".png", ".jpg", ".jpeg"))
-        ]
-        return random.sample(all_images, self.sample_size)
-
     def display_image(self):
         img_name = self.images[self.current_image_index]
         img_path = os.path.join(self.folder_path, img_name)
@@ -174,8 +168,9 @@ class ImageSamplingView(QWidget):
 
         # Calculate the scaling factor
         scale_factor = self.graphics_view.height() / pixmap.height()
-        self.graphics_view.setTransform(QtGui.QTransform().scale(scale_factor,
-                                                                 scale_factor))
+        self.graphics_view.setTransform(
+            QtGui.QTransform().scale(scale_factor, scale_factor)
+        )
 
     def accept_image(self):
         self.current_image_index += 1
