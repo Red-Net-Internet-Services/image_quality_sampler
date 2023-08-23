@@ -110,14 +110,6 @@ class SamplingInitializationView(QDialog):
         sample_size = int(sample_size)
         rejection_size = int(rejection_size)
 
-        if sample_size <= 0 or rejection_size <= 0:
-            QMessageBox.warning(
-                self,
-                "Error",
-                "Sample size and rejection size must be positive integers.",
-            )
-            return
-
         if sample_size > len(image_files):
             QMessageBox.warning(
                 self,

@@ -25,6 +25,8 @@ gitchangelog = "^3.0.4"
 mkdocs = "^1.5.2"
 flake8 = "^4.0.1"
 pyinstaller = "^5.13.0"
+pytest-qt = "^4.2.0"
+pytest-mock = "^3.11.1"
 
 [build-system]
 requires = ["poetry-core"]
