@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Release: version  🚀 [Chris Maikos]
 - Feat(GUI): Make the sample display default to Height Fit. [Chris
   Maikos]
 - Feat(GUI): Make the sample display default to Height Fit. [Chris
