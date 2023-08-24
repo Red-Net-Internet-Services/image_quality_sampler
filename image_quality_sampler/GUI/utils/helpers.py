@@ -55,7 +55,7 @@ def select_random_images(folder_path, sample_size):
     return random.sample(all_images, sample_size)
 
 
-class SamplingPlan():
+class SamplingPlan:
     def __init__(self):
         self.lotSizeArray = [
             {
@@ -548,13 +548,15 @@ class SamplingPlan():
         ]
 
     def get_sample_size_and_acceptance(self, lot_size, inspection_level, AQL):
-        # Iterate through the lotSizeArray to find the correct range for the given lot size
+        # Iterate through the lotSizeArray
         for lot in self.lotSizeArray:
-            if lot["min"] <= lot_size and (lot["max"] >= lot_size or lot["max"] == -1):
+            if lot["min"] <= lot_size and (
+                lot["max"] >= lot_size or lot["max"] == -1
+            ):
                 sample_size_letter = lot["levels"][inspection_level]
                 default_sample_size = self.sampleSizes[sample_size_letter]
-                
-                # Iterate through the AQLnumbers to find the acceptance/rejection numbers for the given AQL
+
+                # Iterate through the AQLnumbers
                 for aql in self.AQLnumbers:
                     if aql["lotSize"] == default_sample_size:
                         if AQL in aql["numbers"]:
