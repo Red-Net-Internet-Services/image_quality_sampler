@@ -58,13 +58,12 @@ virtualenv:       ## Create a virtual environment.
 .PHONY: release
 release:          ## Create a new tag for release.
 	@echo "WARNING: This operation will create s version tag and push to github"
-	@read -p "Version? (provide the next x.y.z semver) : " TAG
-	@echo "$${TAG}" > image_quality_sampler/VERSION
-	@poetry run gitchangelog > HISTORY.md
-	@git add image_quality_sampler/VERSION HISTORY.md
-	@git commit -m "release: version $${TAG} 🚀"
-	@echo "creating git tag : $${TAG}"
-	@git tag $${TAG}
+	@read -p "Version? (provide the next x.y.z semver) : " TAG; \
+	poetry run gitchangelog > HISTORY.md; \
+	git add image_quality_sampler/VERSION HISTORY.md; \
+	git commit -m "release: version ${TAG} 🚀"; \
+	echo "creating git tag : ${TAG}"; \
+	git tag ${TAG}
 	@git push -u origin HEAD --tags
 	@echo "Github Actions will detect the new tag and release the new version."
 
@@ -74,3 +73,8 @@ docs:             ## Build the documentation.
 	@poetry run mkdocs build
 	URL="site/index.html"; xdg-open $$URL || sensible-browser $$URL || x-www-browser $$URL || gnome-open $$URL
 
+.PHONY: package
+package:		## Create new executable for windows systems
+	@echo "Packaging up application..."
+	@poetry run pyinstaller --onefile --windowed --add-data ".\image_quality_sampler\resources\;resources" .\image_quality_sampler\__main__.py
+	@echo "Application packaged. Check dist folder."

@@ -1,12 +1,17 @@
 from PyQt5.QtWidgets import QAction, QMainWindow, QMenu, QMenuBar
 
-from .sampling_initialization_view import SamplingInitializationView
+from image_quality_sampler.GUI.dialogs.configuration_dialog import (
+    ConfigurationDialog,
+)
+from image_quality_sampler.GUI.dialogs.sampling_initialization_dialog import (
+    SamplingInitializationView,
+)
 
 
 class CentralView(QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
-
+        self.db = db
         # Window properties
         self.setWindowTitle("AMS Quality Control Interface")
         self.resize(800, 600)  # Default size
@@ -28,10 +33,19 @@ class CentralView(QMainWindow):
         )
         file_menu.addAction(start_sampling_action)
 
+        start_configuration = QAction("Configure...", self)
+        start_configuration.triggered.connect(self.open_config_dialog)
+        file_menu.addAction(start_configuration)
+
         # Set the menu bar to the window
         self.setMenuBar(menu_bar)
 
     def open_sampling_initialization_view(self):
         # Open the Sampling Initialization View
         self.sampling_init_view = SamplingInitializationView(self)
-        self.sampling_init_view.exec_()
+        self.sampling_init_view.exec()
+
+    def open_config_dialog(self):
+        # Open the Sampling Initialization View
+        self.config_dialog = ConfigurationDialog(self.db)
+        self.config_dialog.exec()
