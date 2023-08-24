@@ -76,5 +76,5 @@ docs:             ## Build the documentation.
 .PHONY: package
 package:		## Create new executable for windows systems
 	@echo "Packaging up application..."
-	@poetry run pyinstaller --onefile --windowed --add-data ".\image_quality_sampler\resources\;resources" .\image_quality_sampler\__main__.py
+	@poetry run pyinstaller --name "AMS Capture - Quality Control Module" --windowed --add-data ".\image_quality_sampler\resources\;resources" .\image_quality_sampler\__main__.py
 	@echo "Application packaged. Check dist folder."

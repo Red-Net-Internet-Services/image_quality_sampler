@@ -27,7 +27,7 @@ class DatabaseManager:
     def create_configuration_table(self):
         self.cursor.execute(
             """
-            CREATE TABLE configuration (
+            CREATE TABLE IF NOT EXIST configuration (
                 id INTEGER PRIMARY KEY,
                 project_name TEXT NOT NULL,
                 location TEXT NOT NULL,
@@ -40,7 +40,7 @@ class DatabaseManager:
     def create_batches_table(self):
         self.cursor.execute(
             """
-            CREATE TABLE batches (
+            CREATE TABLE IF NOT EXIST batches (
                 id INTEGER PRIMARY KEY,
                 batch_name TEXT NOT NULL,
                 folder_count INTEGER NOT NULL,

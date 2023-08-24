@@ -59,6 +59,7 @@ class CentralView(QMainWindow):
         self.startSampleButton.clicked.connect(
             self.open_sampling_initialization_view
         )
+        self.startSampleButton.setEnabled(False)
         btn_layout.addWidget(self.startSampleButton)
 
         layout.addLayout(btn_layout)
@@ -79,13 +80,6 @@ class CentralView(QMainWindow):
         view_menu = QMenu("View", self)
         menu_bar.addMenu(file_menu)
         menu_bar.addMenu(view_menu)
-
-        # Add 'Start Sampling' action to the 'File' menu
-        start_sampling_action = QAction("Start Sampling", self)
-        start_sampling_action.triggered.connect(
-            self.open_sampling_initialization_view
-        )
-        file_menu.addAction(start_sampling_action)
 
         # Add 'Configure' action to the 'File' menu
         start_configuration = QAction("Configure...", self)
@@ -187,4 +181,5 @@ class CentralView(QMainWindow):
                         "status": batch[5],
                     }
                 )
+            self.startSampleButton.setEnabled(True)
             self.update_table(formatted_data)
