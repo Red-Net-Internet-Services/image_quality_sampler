@@ -1,8 +1,11 @@
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QDialog,
     QFileDialog,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
 )
@@ -16,8 +19,12 @@ class ConfigurationDialog(QDialog):
         self.initUI()
 
     def initUI(self):
+        self.setWindowTitle("Configurator")
+        self.resize(800, 0)
+
         # Set up the layout
         layout = QVBoxLayout()
+        self.setWindowFlag(QtCore.Qt.MSWindowsFixedSizeDialogHint, True)
 
         # Project Name
         self.project_name_label = QLabel("Project Name:")
@@ -31,6 +38,8 @@ class ConfigurationDialog(QDialog):
         layout.addWidget(self.location_label)
         layout.addWidget(self.location_input)
 
+        btn_layout = QHBoxLayout()
+
         # Batch Folder
         self.batch_folder_label = QLabel("Batch Folder:")
         self.batch_folder_input = QLineEdit(self)
@@ -38,12 +47,13 @@ class ConfigurationDialog(QDialog):
         self.select_folder_button.clicked.connect(self.select_folder)
         layout.addWidget(self.batch_folder_label)
         layout.addWidget(self.batch_folder_input)
-        layout.addWidget(self.select_folder_button)
+        btn_layout.addWidget(self.select_folder_button)
 
         # Save Button
         self.save_button = QPushButton("Save", self)
         self.save_button.clicked.connect(self.save_details)
-        layout.addWidget(self.save_button)
+        btn_layout.addWidget(self.save_button)
+        layout.addLayout(btn_layout)
 
         if self.config:
             project_name, location, batch_folder = self.config
@@ -64,6 +74,13 @@ class ConfigurationDialog(QDialog):
         project_name = self.project_name_input.text()
         location = self.location_input.text()
         batch_folder = self.batch_folder_input.text()
+
+        # Check if any of the inputs are blank
+        if not project_name or not location or not batch_folder:
+            QMessageBox.warning(
+                self, "Input Error", "All fields must be filled out!"
+            )
+            return
 
         # Check if configuration already exists
         if self.config:
