@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (
     QAction,
     QHBoxLayout,
@@ -20,7 +20,7 @@ from image_quality_sampler.GUI.dialogs.configuration_dialog import (
     ConfigurationDialog,
 )
 from image_quality_sampler.GUI.dialogs.sampling_initialization_dialog import (
-    SamplingInitializationView,
+    BatchSelectionDialog,
 )
 
 
@@ -31,6 +31,11 @@ class CentralView(QMainWindow):
         # Window properties
         self.setWindowTitle("AMS Capture - Quality Control Interface")
         self.resize(800, 600)  # Default size
+
+        # Set up the QTimer
+        self.update_timer = QTimer(self)
+        self.update_timer.timeout.connect(self.update_view)
+        self.update_timer.start(10000)  # 10 seconds in milliseconds
 
         # Create the menu bar
         self.create_menu_bar()
@@ -45,7 +50,7 @@ class CentralView(QMainWindow):
         btn_layout = QHBoxLayout()
 
         # Create a button to update the view by re-analyzing
-        self.updateButton = QPushButton("Update View", self)
+        self.updateButton = QPushButton("Refresh", self)
         self.updateButton.clicked.connect(self.update_view)
         btn_layout.addWidget(self.updateButton)
 
@@ -87,7 +92,7 @@ class CentralView(QMainWindow):
         start_configuration.triggered.connect(self.open_config_dialog)
         file_menu.addAction(start_configuration)
 
-        update_view = QAction("Update View", self)
+        update_view = QAction("Refresh", self)
         update_view.triggered.connect(self.update_view)
         view_menu.addAction(update_view)
 
@@ -96,7 +101,7 @@ class CentralView(QMainWindow):
 
     def open_sampling_initialization_view(self):
         # Open the Sampling Initialization View
-        self.sampling_init_view = SamplingInitializationView(self)
+        self.sampling_init_view = BatchSelectionDialog(self.db)
         self.sampling_init_view.exec()
 
     def open_config_dialog(self):
