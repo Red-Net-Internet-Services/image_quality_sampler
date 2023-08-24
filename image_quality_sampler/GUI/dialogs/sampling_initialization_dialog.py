@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import (
+    QComboBox,
     QDialog,
+    QHBoxLayout,
+    QLabel,
     QPushButton,
     QVBoxLayout,
-    QHBoxLayout,
     QWidget,
-    QComboBox,
-    QLabel,
 )
 
 
@@ -17,7 +17,9 @@ class BatchSelectionDialog(QDialog):
 
         # Create widgets for each step
         self.batch_selection_widget = self.create_batch_selection_widget()
-        self.protocol_selection_widget = self.create_protocol_selection_widget()
+        self.protocol_selection_widget = (
+            self.create_protocol_selection_widget()
+        )
         self.user_details_widget = self.create_user_details_widget()
         self.overview_widget = self.create_overview_widget()
 
@@ -34,7 +36,7 @@ class BatchSelectionDialog(QDialog):
         self.button_layout.addWidget(self.next_button)
         self.button_layout.addWidget(self.start_button)
 
-        # Add the dropdown, details label, and button layout 
+        # Add the dropdown, details label, and button layout
         self.layout.addWidget(self.batch_dropdown)
         self.layout.addWidget(self.batch_details_label)
         self.layout.addLayout(self.button_layout)  # Add the horizontal layout
@@ -62,10 +64,14 @@ class BatchSelectionDialog(QDialog):
             self.batch_dropdown.addItem(batch[1], batch)
 
         # Display area for batch details
-        self.batch_details_label = QLabel("Select a batch to view its details.")
+        self.batch_details_label = QLabel(
+            "Select a batch to view its details."
+        )
         self.update_batch_details(self.batch_dropdown.currentIndex())
         # Connect dropdown signal to update details display
-        self.batch_dropdown.currentIndexChanged.connect(self.update_batch_details)
+        self.batch_dropdown.currentIndexChanged.connect(
+            self.update_batch_details
+        )
 
         layout.addWidget(self.batch_dropdown)
         layout.addWidget(self.batch_details_label)
