@@ -63,7 +63,7 @@ class BatchSelectionDialog(QDialog):
 
         # Display area for batch details
         self.batch_details_label = QLabel("Select a batch to view its details.")
-        
+        self.update_batch_details(self.batch_dropdown.currentIndex())
         # Connect dropdown signal to update details display
         self.batch_dropdown.currentIndexChanged.connect(self.update_batch_details)
 
