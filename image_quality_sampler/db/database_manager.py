@@ -44,7 +44,9 @@ class DatabaseManager:
                 id INTEGER PRIMARY KEY,
                 batch_name TEXT NOT NULL,
                 folder_count INTEGER NOT NULL,
-                image_count INTEGER NOT NULL
+                image_count INTEGER NOT NULL,
+                sampling_attempts INTEGER,
+                status TEXT NOT NULL
             )
             """
         )
@@ -81,21 +83,60 @@ class DatabaseManager:
         )
         return self.cursor.fetchone()
 
-    def insert_batch(self, batch_name, folder_count, image_count):
+    def insert_batch(
+        self, batch_name, folder_count, image_count, sampling_attempts, status
+    ):
         self.cursor.execute(
             """
-            INSERT INTO batches (batch_name, folder_count, image_count)
-            VALUES (?, ?, ?)
+            INSERT INTO batches (batch_name, folder_count,
+            image_count, sampling_attempts, status)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (batch_name, folder_count, image_count),
+            (batch_name, folder_count, image_count, sampling_attempts, status),
         )
         self.conn.commit()
 
-    def get_all_batches(self):
+    def update_batch(
+        self,
+        batch_name,
+        subfolder_count,
+        image_count,
+        sampling_attempts,
+        status,
+    ):
         self.cursor.execute(
-            "SELECT batch_name, folder_count, image_count FROM batches"
+            """
+            UPDATE batches
+            SET folder_count = ?, image_count = ?,
+            sampling_attempts = ?, status = ?
+            WHERE batch_name = ?
+            """,
+            (
+                subfolder_count,
+                image_count,
+                sampling_attempts,
+                status,
+                batch_name,
+            ),
         )
+        self.conn.commit()
+
+    def get_batch(self, batch_name):
+        self.cursor.execute(
+            "SELECT * FROM batches WHERE batch_name = ?",
+            (batch_name,),
+        )
+        return self.cursor.fetchone()
+
+    def get_all_batches(self):
+        self.cursor.execute("SELECT * FROM batches")
         return self.cursor.fetchall()
+
+    def delete_batch(self, batch_name):
+        self.cursor.execute(
+            "DELETE FROM batches WHERE batch_name = ?", (batch_name,)
+        )
+        self.conn.commit()
 
     def close(self):
         self.conn.close()
