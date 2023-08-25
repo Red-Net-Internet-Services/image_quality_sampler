@@ -1,8 +1,10 @@
 import atexit
+import os
 from multiprocessing import Process
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QIcon
 
 from image_quality_sampler import config
 from image_quality_sampler.db.database_manager import DatabaseManager
@@ -29,6 +31,8 @@ def main():  # pragma: no cover
 
     stylesheet = open(config.CSS_PATH, "r").read()
     app.setStyleSheet(stylesheet)
+    icon_path = os.path.join(config.RESOURCE_PATH, "icon.jpg")
+    app.setWindowIcon(QIcon(icon_path))
 
     # Ensure the window comes to the foreground
     window.setWindowFlags(window.windowFlags() | Qt.WindowStaysOnTopHint)

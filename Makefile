@@ -61,9 +61,9 @@ release:          ## Create a new tag for release.
 	@read -p "Version? (provide the next x.y.z semver) : " TAG; \
 	poetry run gitchangelog > HISTORY.md; \
 	git add image_quality_sampler/VERSION HISTORY.md; \
-	git commit -m "release: version ${TAG} 🚀"; \
-	echo "creating git tag : ${TAG}"; \
-	git tag ${TAG}
+	git commit -m "release: version $${TAG} 🚀"; \
+	echo "creating git tag : $${TAG}"; \
+	git tag $${TAG}
 	@git push -u origin HEAD --tags
 	@echo "Github Actions will detect the new tag and release the new version."
 
