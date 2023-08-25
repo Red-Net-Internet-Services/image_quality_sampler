@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Release: version  🚀 [Chris Maikos]
 - Feat(Sampling): Finalized report and sampling procedures. [Chris
   Maikos]
 - Feat(Sampling): Finalized report and sampling procedures. [Chris
