@@ -366,11 +366,11 @@ class BatchSelectionDialog(QDialog):
         self.selected_protocol_label.setText(label_text)
 
     def update_user_name(self):
-        user1_name = self.name1_input.toPlainText()
-        user2_name = self.name2_input.toPlainText()
+        self.user1_name = self.name1_input.toPlainText()
+        self.user2_name = self.name2_input.toPlainText()
 
         # Check if any of the inputs are blank
-        if not user1_name or not user2_name:
+        if not self.user1_name or not self.user2_name:
             QMessageBox.warning(
                 self, "Input Error", "Τα ονόματα είναι υποχρεωτικά!"
             )
@@ -379,8 +379,8 @@ class BatchSelectionDialog(QDialog):
 
         users = textwrap.dedent(
             f"""
-        Όνομα Ελεγκτή Αναθέτουσας Αρχής: {user1_name}\n
-        Όνομα Ελεγκτή Αναδόχου: {user2_name}"""
+        Όνομα Ελεγκτή Αναθέτουσας Αρχής: {self.user1_name}\n
+        Όνομα Ελεγκτή Αναδόχου: {self.user2_name}"""
         ).strip()
         self.users_label.setText(users)
         return True
@@ -397,6 +397,8 @@ class BatchSelectionDialog(QDialog):
             self.main_window,
             self.db,
             selected_batch,
+            self.user1_name,
+            self.user2_name,
         )
         self.accept()
         self.main_window.hide()

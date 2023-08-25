@@ -198,6 +198,10 @@ class CentralView(QMainWindow):
                 self.tableWidget.item(row, col).setForeground(
                     QBrush(textColor)
                 )
+            # Center the text in each cell
+            for col in range(self.tableWidget.columnCount()):
+                item = self.tableWidget.item(row, col)
+                item.setTextAlignment(Qt.AlignCenter)
 
         # Enable sorting
         self.tableWidget.setSortingEnabled(True)

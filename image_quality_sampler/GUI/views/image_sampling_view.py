@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QGraphicsScene,
     QGraphicsView,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QMessageBox,
     QPushButton,
@@ -21,6 +22,7 @@ from image_quality_sampler.GUI.utils.helpers import (
     extract_image_metadata,
     select_random_images,
 )
+from image_quality_sampler.reports import visualize
 
 
 class ImageSamplingView(QWidget):
@@ -32,6 +34,8 @@ class ImageSamplingView(QWidget):
         central_view,
         db,
         batch_name,
+        name1,
+        name2,
     ):
         super().__init__()
         self.db = db
@@ -42,7 +46,10 @@ class ImageSamplingView(QWidget):
         self.folder_path = folder_path
         self.sample_size = sample_size
         self.rejection_size = rejection_size
+        self.name1 = name1
+        self.name2 = name2
         self.rejections = 0
+        self.rejected_images = []
         self.current_image_index = 0
         self.images = select_random_images(self.folder_path, self.sample_size)
         self.initUI()
@@ -194,10 +201,16 @@ class ImageSamplingView(QWidget):
             )
             self.update_batch("PASSED")
             self.main_window.show()
+            self.package_data()
             self.close()  # Close the view
 
     def reject_image(self):
+        reason = self.get_rejection_reason()
         self.rejections += 1
+        # Store the rejected image and its reason
+        img_name = self.images[self.current_image_index]
+        img_path = os.path.join(self.folder_path, img_name)
+        self.rejected_images.append((img_path, reason))
         if self.rejections >= self.rejection_size:
             QMessageBox.warning(
                 self,
@@ -210,6 +223,7 @@ class ImageSamplingView(QWidget):
                 self.update_batch("REJECTED")
             else:
                 self.update_batch("TEMP REJECTED")
+            self.package_data()
             self.close()  # Close the view
             return
         self.accept_image()  # Move to the next image
@@ -250,3 +264,44 @@ class ImageSamplingView(QWidget):
             status,
         )
         print(f"Updated Batch {self.batch_name}")
+
+    def get_rejection_reason(self):
+        reasons = [
+            "Bad Deskew",
+            "Bad cropping",
+            "Wrong color depth",
+            "Wrong file name",
+            "Wrong file type",
+        ]
+        reason, ok = QInputDialog.getItem(
+            self,
+            "Rejection Reason",
+            "Select a reason for rejection:",
+            reasons,
+            0,
+            False,
+        )
+        if ok and reason:
+            return reason
+        return None
+
+    def package_data(self):
+        config_data = self.db.get_configuration()
+        sampling_results = {
+            "Batch Name": self.batch_name,
+            "Lot": self.current_status[
+                3
+            ],  # Assuming this is the correct index for Lot
+            "Documents": self.current_status[2],
+            "Sample": self.sample_size,
+            "Sampling Plan": self.rejection_size,
+            "Checked Images": [
+                os.path.join(self.folder_path, img) for img in self.images
+            ],
+            "Rejected Images": self.rejected_images,
+            "Project": config_data[0],
+            "Location": config_data[1],
+            "User 1": self.name1,
+            "User 2": self.name2,
+        }
+        visualize.create_report(sampling_results)

@@ -13,6 +13,7 @@ pyqt5 = "^5.15.9"
 pyqt5-tools = "^5.15.9.3.3"
 exifread = "^3.0.0"
 watchdog = "^3.0.0"
+matplotlib = "^3.7.2"
 
 
 [tool.poetry.group.dev.dependencies]
