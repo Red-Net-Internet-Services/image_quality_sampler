@@ -4,6 +4,34 @@ Changelog
 
 (unreleased)
 ------------
+- Feat(Sampling): Finalized report and sampling procedures. [Chris
+  Maikos]
+- Feat(Sampling): Finalized report and sampling procedures. [Chris
+  Maikos]
+- Feat(Sampling): Changed the view of the batch tables\nfeat(Sampling):
+  Made the batch selection dialog only available to specific status.
+  [Chris Maikos]
+- Feat(ANSI): Integrated fully the ANSI protocol for sample size and
+  inspections. [Chris Maikos]
+- Code Formatting. [Chris Maikos]
+- Feat(GUI): Added dialog with inspection level and created appropriate
+  code to recognize sample/accpet/reject rates. [Chris Maikos]
+- Fix(threading): Fix freexe_support for Windows. [Chris Maikos]
+- Feat(Sampling GUI): Implement dialog for batch selection, STAGE 1.
+  [Chris Maikos]
+- Feat(Sampling GUI): Implement dialog for batch selection, STAGE 1.
+  [Chris Maikos]
+- Feat(watchdog): Added Watchdog Process to monitor the Batch Folder for
+  changes and dynamicaly update the tables. [Chris Maikos]
+- Feat(db): Created Database with Manager to handle app configuration
+  and datastore. [Chris Maikos]
+- Fix(make): Fix makefile release instructions to work as expected.
+  [Chris Maikos]
+
+
+0.2.1 (2023-08-23)
+------------------
+- Release: version 0.2.1 🚀 [Chris Maikos]
 - Release: version  🚀 [Chris Maikos]
 - Release: version  🚀 [Chris Maikos]
 - Release: version  🚀 [Chris Maikos]
