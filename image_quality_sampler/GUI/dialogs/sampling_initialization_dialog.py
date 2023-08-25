@@ -1,7 +1,12 @@
+import os
+import textwrap
+
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QButtonGroup,
     QComboBox,
     QDialog,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -12,13 +17,18 @@ from PyQt5.QtWidgets import (
 )
 
 from image_quality_sampler.GUI.utils.helpers import SamplingPlan
+from image_quality_sampler.GUI.views.image_sampling_view import (
+    ImageSamplingView,
+)
 
 
 class BatchSelectionDialog(QDialog):
-    def __init__(self, db, parent=None):
+    def __init__(self, db, main_window, parent=None):
         super().__init__(parent)
         self.db = db
+        self.main_window = main_window
         self.setWindowTitle("Start Sampling")
+        self.setFixedWidth(800)
 
         # Create widgets for each step
         self.batch_selection_widget = self.create_batch_selection_widget()
@@ -60,6 +70,10 @@ class BatchSelectionDialog(QDialog):
         widget = QWidget()
         layout = QVBoxLayout()
 
+        # GroupBox for Batch Selection
+        batch_groupbox = QGroupBox("Batch Selection")
+        batch_layout = QVBoxLayout()
+
         # Dropdown for batch selection
         self.batch_dropdown = QComboBox()
         batches = self.db.get_all_batches()
@@ -71,13 +85,23 @@ class BatchSelectionDialog(QDialog):
             "Select a batch to view its details."
         )
         self.update_batch_details(self.batch_dropdown.currentIndex())
+        self.batch_details_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+
         # Connect dropdown signal to update details display
         self.batch_dropdown.currentIndexChanged.connect(
             self.update_batch_details
         )
 
-        layout.addWidget(self.batch_dropdown)
-        layout.addWidget(self.batch_details_label)
+        # Add widgets to the batch layout
+        batch_layout.addWidget(self.batch_dropdown)
+        batch_layout.addWidget(self.batch_details_label)
+        batch_layout.setSpacing(10)  # uniform spacing between widgets
+        batch_groupbox.setLayout(batch_layout)
+
+        # Add the group box to the main layout
+        layout.addWidget(batch_groupbox)
+        layout.setContentsMargins(20, 20, 20, 20)  # uniform margins
+
         widget.setLayout(layout)
         return widget
 
@@ -85,18 +109,25 @@ class BatchSelectionDialog(QDialog):
         widget = QWidget()
         layout = QVBoxLayout()
 
+        # GroupBox for Protocol Selection
+        protocol_groupbox = QGroupBox("Protocol Selection")
+        protocol_layout = QVBoxLayout()
+
         # Inspection Level Selection
         level_label = QLabel("Select Inspection Level")
-        layout.addWidget(level_label)
+        protocol_layout.addWidget(level_label)
         self.inspection_level_group = QButtonGroup(self)
         for level in ["Level I", "Level II", "Level III"]:
             rb = QRadioButton(level)
-            layout.addWidget(rb)
+            protocol_layout.addWidget(rb)
             self.inspection_level_group.addButton(rb)
+            # Check if the level is "Level II" and set it as default
+            if level == "Level II":
+                rb.setChecked(True)
 
         # AQL Selection
         aql_label = QLabel("Select AQL (Acceptable Quality Limit)")
-        layout.addWidget(aql_label)
+        protocol_layout.addWidget(aql_label)
         self.aql_dropdown = QComboBox()
         self.aql_dropdown.addItems(
             [
@@ -112,17 +143,18 @@ class BatchSelectionDialog(QDialog):
                 "6.5",
             ]
         )
-        layout.addWidget(self.aql_dropdown)
+        protocol_layout.addWidget(self.aql_dropdown)
 
         # Display Area for ANSI Sampling Details
-        details_label = QLabel("Sampling Details")
-        layout.addWidget(details_label)
-        self.sample_size_display = QTextEdit()
-        self.sample_size_display.setReadOnly(True)
-        layout.addWidget(self.sample_size_display)
-        self.acceptance_criteria_display = QTextEdit()
-        self.acceptance_criteria_display.setReadOnly(True)
-        layout.addWidget(self.acceptance_criteria_display)
+        self.details_label = QLabel("Sampling Details")
+        self.details_label.setAlignment(Qt.AlignCenter)
+        protocol_layout.addWidget(self.details_label)
+
+        protocol_layout.setSpacing(10)
+        protocol_groupbox.setLayout(protocol_layout)
+
+        layout.addWidget(protocol_groupbox)
+        layout.setContentsMargins(20, 20, 20, 20)
 
         # Connect signals to update sampling details
         self.aql_dropdown.currentIndexChanged.connect(
@@ -136,12 +168,72 @@ class BatchSelectionDialog(QDialog):
         return widget
 
     def create_user_details_widget(self):
-        # Create and return the widget for user details input
-        pass
+        widget = QWidget()
+        layout = QVBoxLayout()
+
+        # GroupBox for User Details
+        user_groupbox = QGroupBox("User Details")
+        user_layout = QVBoxLayout()
+
+        int_layout1 = QHBoxLayout()
+        int_layout2 = QHBoxLayout()
+
+        # User Name Input
+        name1_label = QLabel("Όνομα Ελεγκτή Αναθέτουσας Αρχής:")
+        name2_label = QLabel("Όνομα Ελεγκτή Αναδόχου:")
+        self.name1_input = QTextEdit()
+        self.name1_input.setFixedHeight(30)
+        self.name2_input = QTextEdit()
+        self.name2_input.setFixedHeight(30)
+
+        int_layout1.addWidget(name1_label)
+        int_layout1.addWidget(self.name1_input)
+        int_layout2.addWidget(name2_label)
+        int_layout2.addWidget(self.name2_input)
+
+        user_layout.addLayout(int_layout1)
+        user_layout.addLayout(int_layout2)
+        user_layout.setSpacing(10)
+        user_groupbox.setLayout(user_layout)
+
+        layout.addWidget(user_groupbox)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        widget.setLayout(layout)
+        return widget
 
     def create_overview_widget(self):
-        # Create and return the widget for overview and confirmation
-        pass
+        widget = QWidget()
+        layout = QVBoxLayout()
+
+        # GroupBox for Overview
+        overview_groupbox = QGroupBox("Overview")
+        overview_layout = QVBoxLayout()
+        overview_layout.setAlignment(Qt.AlignCenter)
+
+        # Display the selected batch
+        self.selected_batch_label = QLabel()
+        self.selected_batch_label.setAlignment(Qt.AlignCenter)
+        overview_layout.addWidget(self.selected_batch_label)
+
+        # Display the selected protocol
+        self.selected_protocol_label = QLabel()
+        self.selected_protocol_label.setAlignment(Qt.AlignCenter)
+        overview_layout.addWidget(self.selected_protocol_label)
+
+        # Display the user's name
+        self.users_label = QLabel()
+        self.users_label.setAlignment(Qt.AlignCenter)
+        overview_layout.addWidget(self.users_label)
+
+        overview_layout.setSpacing(5)
+        overview_groupbox.setLayout(overview_layout)
+
+        layout.addWidget(overview_groupbox)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        widget.setLayout(layout)
+        return widget
 
     def go_to_next_step(self):
         # Increment the step number
@@ -157,10 +249,6 @@ class BatchSelectionDialog(QDialog):
         # Show the previous step's widget
         self.show_step(self.current_step)
 
-    def start_sampling(self):
-        # Logic to start the sampling process
-        pass
-
     def show_step(self, step_number):
         # Remove the current widget from the layout if it exists
         if hasattr(self, "current_widget"):
@@ -174,13 +262,20 @@ class BatchSelectionDialog(QDialog):
             self.start_button.setEnabled(False)
         elif step_number == 2:
             self.current_widget = self.protocol_selection_widget
+            self.update_sampling_details()
             self.back_button.setEnabled(True)
             self.next_button.setEnabled(True)
             self.start_button.setEnabled(False)
-        # Add conditions for other steps as you implement them
-        # ...
+        elif step_number == 3:
+            self.current_widget = self.user_details_widget
+            self.back_button.setEnabled(True)
+            self.next_button.setEnabled(True)
+            self.start_button.setEnabled(False)
         elif step_number == 4:  # Assuming 4 is the last step
             self.current_widget = self.overview_widget
+            self.update_selected_batch()
+            self.update_selected_protocol()
+            self.update_user_name()
             self.back_button.setEnabled(True)
             self.next_button.setEnabled(False)
             self.start_button.setEnabled(True)
@@ -188,15 +283,18 @@ class BatchSelectionDialog(QDialog):
         # Add the current widget to the layout
         self.layout.insertWidget(0, self.current_widget)
         self.current_widget.show()
+        self.adjustSize()
 
     def update_batch_details(self, index):
         batch = self.batch_dropdown.itemData(index)
-        details = f"""
+        details = textwrap.dedent(
+            f"""
         Folder Count: {batch[2]}
         Images: {batch[3]}
         Sample Attempts: {batch[4]}
         Status: {batch[5]}
         """
+        ).strip()
         self.batch_details_label.setText(details)
 
     def update_sampling_details(self):
@@ -205,9 +303,7 @@ class BatchSelectionDialog(QDialog):
         if selected_button:
             inspection_level = selected_button.text().split()[-1]
         else:
-            # If no button is selected, clear the displays and return
-            self.sample_size_display.clear()
-            self.acceptance_criteria_display.clear()
+            # If no button is selected, return
             return
 
         # Get selected AQL
@@ -220,23 +316,72 @@ class BatchSelectionDialog(QDialog):
         if selected_batch:
             self.lot_size = selected_batch[3]
         else:
-            # If no batch is selected, clear the displays and return
-            self.sample_size_display.clear()
-            self.acceptance_criteria_display.clear()
+            # If no batch is selected, return
             return
 
         # Use the SamplingPlan class to determine sample size and acceptance
-        sampling_plan = SamplingPlan()
+        self.sampling_plan = SamplingPlan()
         (
-            sample_size,
-            accept,
-            reject,
-        ) = sampling_plan.get_sample_size_and_acceptance(
+            self.sample_size,
+            self.accepted,
+            self.rejected,
+        ) = self.sampling_plan.get_sample_size_and_acceptance(
             self.lot_size, inspection_level, aql
         )
 
         # Update the display widgets
-        self.sample_size_display.setPlainText(f"Sample Size: {sample_size}")
-        self.acceptance_criteria_display.setPlainText(
-            f"Accept up to: {accept}\nReject if: {reject}"
+        details = textwrap.dedent(
+            f"""
+        Sample Size : {self.sample_size}
+        Accept up to: {self.accepted}
+        Reject if: {self.rejected}
+        """
+        ).strip()
+        self.details_label.setText(details)
+
+    def update_selected_batch(self):
+        selected_batch = self.batch_dropdown.currentText()
+        self.selected_batch_label.setText(f"Selected Batch: {selected_batch}")
+
+    def update_selected_protocol(self):
+        selected_level = (
+            self.inspection_level_group.checkedButton().text()
+            if self.inspection_level_group.checkedButton()
+            else "None"
         )
+        selected_aql = self.aql_dropdown.currentText().strip()
+        details = self.details_label.text().strip()
+
+        # Build the string line by line
+        lines = [
+            f"Inspection Level: {selected_level}",
+            f"AQL: {selected_aql}",
+            f"Lot Size: {self.lot_size}",
+            details,
+        ]
+        label_text = "\n".join(lines)
+
+        self.selected_protocol_label.setText(label_text)
+
+    def update_user_name(self):
+        user1_name = self.name1_input.toPlainText()
+        user2_name = self.name2_input.toPlainText()
+        users = textwrap.dedent(
+            f"""
+        Όνομα Ελεγκτή Αναθέτουσας Αρχής: {user1_name}\n
+        Όνομα Ελεγκτή Αναδόχου: {user2_name}"""
+        ).strip()
+        self.users_label.setText(users)
+
+    def start_sampling(self):
+        selected_batch = self.batch_dropdown.currentText()
+        root_path = self.db.get_configuration()[2]
+        folder_path = os.path.join(root_path, selected_batch)
+        print(folder_path)
+        # If everything is valid, proceed to the sampling process
+        self.sampling_view = ImageSamplingView(
+            folder_path, self.sample_size, self.rejected, self.main_window
+        )
+        self.accept()
+        self.main_window.hide()
+        self.sampling_view.show()

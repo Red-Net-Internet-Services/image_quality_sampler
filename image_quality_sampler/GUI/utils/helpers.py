@@ -44,14 +44,16 @@ def extract_image_metadata(img_path):
 
 
 def select_random_images(folder_path, sample_size):
-    all_images = [
-        f
-        for f in os.listdir(folder_path)
-        if mimetypes.guess_type(os.path.join(folder_path, f))[0]
-        and mimetypes.guess_type(os.path.join(folder_path, f))[0].startswith(
-            "image/"
-        )
-    ]
+    all_images = []
+
+    # Walk through all subdirectories
+    for dirpath, _, filenames in os.walk(folder_path):
+        for f in filenames:
+            full_path = os.path.join(dirpath, f)
+            mime_type, _ = mimetypes.guess_type(full_path)
+            if mime_type and mime_type.startswith("image/"):
+                all_images.append(full_path)
+
     return random.sample(all_images, sample_size)
 
 

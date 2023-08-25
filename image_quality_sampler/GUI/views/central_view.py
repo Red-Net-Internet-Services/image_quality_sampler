@@ -95,7 +95,7 @@ class CentralView(QMainWindow):
 
     def open_sampling_initialization_view(self):
         # Open the Sampling Initialization View
-        self.sampling_init_view = BatchSelectionDialog(self.db)
+        self.sampling_init_view = BatchSelectionDialog(self.db, self)
         self.sampling_init_view.exec()
 
     def open_config_dialog(self):
