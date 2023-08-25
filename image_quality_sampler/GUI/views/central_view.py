@@ -1,6 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QBrush, QColor
 from PyQt5.QtWidgets import (
     QAction,
     QHBoxLayout,
@@ -16,11 +17,14 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from image_quality_sampler.GUI.dialogs.batch_selection_dialog import (
+    BatchSelectionDialog,
+)
 from image_quality_sampler.GUI.dialogs.configuration_dialog import (
     ConfigurationDialog,
 )
-from image_quality_sampler.GUI.dialogs.sampling_initialization_dialog import (
-    BatchSelectionDialog,
+from image_quality_sampler.GUI.widgets.table_widgets import (
+    NumericTableWidgetItem,
 )
 
 
@@ -130,15 +134,18 @@ class CentralView(QMainWindow):
                 "Status",
             ]
         )
+        # Hide the grid
+        self.tableWidget.setShowGrid(False)
         for row, data in enumerate(batch_data):
             batch_name_item = QTableWidgetItem(data["batch_name"])
-            subfolder_count_item = QTableWidgetItem(
+            subfolder_count_item = NumericTableWidgetItem(
                 str(data["subfolder_count"])
             )
-            image_count_item = QTableWidgetItem(str(data["image_count"]))
-            sampling_attempts_item = QTableWidgetItem(
+            image_count_item = NumericTableWidgetItem(str(data["image_count"]))
+            sampling_attempts_item = NumericTableWidgetItem(
                 data["sampling_attempts"]
             )
+
             status_item = QTableWidgetItem(data["status"])
 
             # Make items non-editable
@@ -157,17 +164,59 @@ class CentralView(QMainWindow):
             )
             status_item.setFlags(status_item.flags() & ~Qt.ItemIsEditable)
 
+            # Color rows based on status
+            if data["status"] == "REJECTED":
+                color = QColor("red")
+            elif data["status"] == "TEMP REJECTED":
+                color = QColor("yellow")
+            elif data["status"] == "PENDING":
+                color = QColor("cyan")
+            elif data["status"] == "PASSED":
+                color = QColor("green")
+            else:
+                color = QColor("white")  # default color
+
             self.tableWidget.setItem(row, 0, batch_name_item)
             self.tableWidget.setItem(row, 1, subfolder_count_item)
             self.tableWidget.setItem(row, 2, image_count_item)
             self.tableWidget.setItem(row, 3, sampling_attempts_item)
             self.tableWidget.setItem(row, 4, status_item)
 
+            # Determine text color based on background color brightness
+            brightness = (
+                (color.red() * 0.299)
+                + (color.green() * 0.587)
+                + (color.blue() * 0.114)
+            )
+            if brightness > 127.5:  # This threshold can be adjusted
+                textColor = QColor("black")
+            else:
+                textColor = QColor("white")
+
+            for col in range(self.tableWidget.columnCount()):
+                self.tableWidget.item(row, col).setBackground(color)
+                self.tableWidget.item(row, col).setForeground(
+                    QBrush(textColor)
+                )
+
+        # Enable sorting
+        self.tableWidget.setSortingEnabled(True)
         # Stretch the table columns to fill the available space
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.Stretch)
+        header.setSortIndicatorShown(True)
 
     def update_view(self):
+        # Store the current sort order and column
+        current_sort_order = (
+            self.tableWidget.horizontalHeader().sortIndicatorOrder()
+        )
+        current_sort_column = (
+            self.tableWidget.horizontalHeader().sortIndicatorSection()
+        )
+        # Temporarily disable sorting
+        self.tableWidget.setSortingEnabled(False)
+
         batch_data = self.db.get_all_batches()
         if batch_data:
             formatted_data = []
@@ -183,3 +232,7 @@ class CentralView(QMainWindow):
                 )
             self.startSampleButton.setEnabled(True)
             self.update_table(formatted_data)
+        # Restore the sort order and column
+        self.tableWidget.sortItems(current_sort_column, current_sort_order)
+        # Re-enable sorting
+        self.tableWidget.setSortingEnabled(True)

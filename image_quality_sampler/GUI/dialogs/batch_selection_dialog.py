@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPushButton,
     QRadioButton,
     QTextEdit,
@@ -78,7 +79,8 @@ class BatchSelectionDialog(QDialog):
         self.batch_dropdown = QComboBox()
         batches = self.db.get_all_batches()
         for batch in batches:
-            self.batch_dropdown.addItem(batch[1], batch)
+            if batch[5] != "PASSED" and batch[5] != "REJECTED":
+                self.batch_dropdown.addItem(batch[1], batch)
 
         # Display area for batch details
         self.batch_details_label = QLabel(
@@ -275,10 +277,10 @@ class BatchSelectionDialog(QDialog):
             self.current_widget = self.overview_widget
             self.update_selected_batch()
             self.update_selected_protocol()
-            self.update_user_name()
-            self.back_button.setEnabled(True)
-            self.next_button.setEnabled(False)
-            self.start_button.setEnabled(True)
+            if self.update_user_name():
+                self.back_button.setEnabled(True)
+                self.next_button.setEnabled(False)
+                self.start_button.setEnabled(True)
 
         # Add the current widget to the layout
         self.layout.insertWidget(0, self.current_widget)
@@ -366,21 +368,35 @@ class BatchSelectionDialog(QDialog):
     def update_user_name(self):
         user1_name = self.name1_input.toPlainText()
         user2_name = self.name2_input.toPlainText()
+
+        # Check if any of the inputs are blank
+        if not user1_name or not user2_name:
+            QMessageBox.warning(
+                self, "Input Error", "Τα ονόματα είναι υποχρεωτικά!"
+            )
+            self.go_to_previous_step()
+            return False
+
         users = textwrap.dedent(
             f"""
         Όνομα Ελεγκτή Αναθέτουσας Αρχής: {user1_name}\n
         Όνομα Ελεγκτή Αναδόχου: {user2_name}"""
         ).strip()
         self.users_label.setText(users)
+        return True
 
     def start_sampling(self):
         selected_batch = self.batch_dropdown.currentText()
         root_path = self.db.get_configuration()[2]
         folder_path = os.path.join(root_path, selected_batch)
-        print(folder_path)
         # If everything is valid, proceed to the sampling process
         self.sampling_view = ImageSamplingView(
-            folder_path, self.sample_size, self.rejected, self.main_window
+            folder_path,
+            self.sample_size,
+            self.rejected,
+            self.main_window,
+            self.db,
+            selected_batch,
         )
         self.accept()
         self.main_window.hide()

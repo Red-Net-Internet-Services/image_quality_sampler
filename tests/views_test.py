@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication
 import PyQt5
 from PIL import Image
 from image_quality_sampler.GUI.views.central_view import CentralView
-from image_quality_sampler.GUI.dialogs.sampling_initialization_dialog import (
+from image_quality_sampler.GUI.dialogs.batch_selection_dialog import (
     SamplingInitializationView,
 )
 

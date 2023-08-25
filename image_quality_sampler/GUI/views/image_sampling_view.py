@@ -24,8 +24,19 @@ from image_quality_sampler.GUI.utils.helpers import (
 
 
 class ImageSamplingView(QWidget):
-    def __init__(self, folder_path, sample_size, rejection_size, central_view):
+    def __init__(
+        self,
+        folder_path,
+        sample_size,
+        rejection_size,
+        central_view,
+        db,
+        batch_name,
+    ):
         super().__init__()
+        self.db = db
+        self.batch_name = batch_name
+        self.current_status = self.db.get_batch(self.batch_name)
         self.exit_flag = True
         self.main_window = central_view
         self.folder_path = folder_path
@@ -42,9 +53,6 @@ class ImageSamplingView(QWidget):
 
         # Display the initial content
         self.display_image()
-
-        # Initialize the toolbar
-        self.initToolbar()
 
         self.setWindowTitle("Image Sampling")
         self.showMaximized()
@@ -89,7 +97,8 @@ class ImageSamplingView(QWidget):
         self.toolbar.addAction(zoom_fit_action)
 
         # Add the toolbar to the layout
-        self.image_display_layout.insertWidget(0, self.toolbar)
+        self.image_display_layout.insertWidget(1, self.toolbar)
+        self.image_display_layout.setAlignment(self.toolbar, Qt.AlignCenter)
 
     def zoom_in(self):
         self.graphics_view.scale(1.2, 1.2)
@@ -146,6 +155,7 @@ class ImageSamplingView(QWidget):
         # Set the objectName for CSS
         self.acceptButton.setObjectName("acceptButton")
         self.rejectButton.setObjectName("rejectButton")
+        self.initToolbar()
 
     def display_image(self):
         img_name = self.images[self.current_image_index]
@@ -182,6 +192,7 @@ class ImageSamplingView(QWidget):
             QMessageBox.information(
                 self, "Done", "All images have been processed."
             )
+            self.update_batch("PASSED")
             self.main_window.show()
             self.close()  # Close the view
 
@@ -195,6 +206,10 @@ class ImageSamplingView(QWidget):
             )
             self.exit_flag = False
             self.main_window.show()
+            if self.current_status[4] > 0:
+                self.update_batch("REJECTED")
+            else:
+                self.update_batch("TEMP REJECTED")
             self.close()  # Close the view
             return
         self.accept_image()  # Move to the next image
@@ -224,3 +239,14 @@ class ImageSamplingView(QWidget):
                 event.ignore()
         else:
             event.accept()
+
+    def update_batch(self, status):
+        index = self.current_status[4] + 1
+        self.db.update_batch(
+            self.batch_name,
+            self.current_status[2],
+            self.current_status[3],
+            index,
+            status,
+        )
+        print(f"Updated Batch {self.batch_name}")

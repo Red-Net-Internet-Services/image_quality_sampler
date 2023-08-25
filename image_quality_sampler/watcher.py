@@ -46,8 +46,8 @@ class Watcher:
                         data["batch_name"],
                         data["subfolder_count"],
                         data["image_count"],
-                        data["sampling_attempts"],
-                        data["status"],
+                        "0",
+                        "PENDING",
                     )
         # Step 1: Fetch all batch names from the database
         all_batches = db.get_all_batches()
@@ -117,8 +117,6 @@ class Watcher:
                         "batch_name": item,
                         "subfolder_count": subfolder_count,
                         "image_count": image_count,
-                        "sampling_attempts": "0",  # Default value
-                        "status": "Pending",  # Default value
                     }
                 )
         return batch_data

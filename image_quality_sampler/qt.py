@@ -1,5 +1,4 @@
 import atexit
-import logging
 from multiprocessing import Process
 
 from PyQt5.QtCore import Qt
@@ -11,7 +10,7 @@ from image_quality_sampler.GUI.views.central_view import CentralView
 from image_quality_sampler.watcher import Watcher
 
 
-def start_watcher():
+def start_watcher():  # pragma: no cover
     watcher = Watcher()
     watcher_process = Process(target=watcher.run)
     watcher_process.start()
@@ -19,7 +18,6 @@ def start_watcher():
 
 
 def main():  # pragma: no cover
-    logging.info("Watcher process started")
     watcher_process = start_watcher()
     # Register the cleanup function
     atexit.register(watcher_process.terminate)
@@ -39,5 +37,3 @@ def main():  # pragma: no cover
     window.show()
 
     app.exec()
-    # watcher_process.join()
-    logging.info("Watcher process joined")
