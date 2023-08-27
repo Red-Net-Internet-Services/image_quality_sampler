@@ -1,11 +1,15 @@
 import mimetypes
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 
+import magic
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from image_quality_sampler.db.database_manager import DatabaseManager
+
+MAX_THREADS = 10
 
 
 class Watcher:
@@ -121,11 +125,23 @@ class Watcher:
                 )
         return batch_data
 
+    def check_image(self, file):
+        mime_type, _ = mimetypes.guess_type(file)
+
+        # If mimetypes fails, fall back to python-magic.
+        if not mime_type or not mime_type.startswith("image"):
+            mime_type = magic.from_file(file, mime=True)
+
+        return 1 if mime_type and mime_type.startswith("image") else 0
+
     def recursive_image_count(self, path):
-        total = 0
-        for _, _, files in os.walk(path):
-            for file in files:
-                mime_type, _ = mimetypes.guess_type(file)
-                if mime_type and mime_type.startswith("image"):
-                    total += 1
-        return total
+        all_files = [
+            os.path.join(dp, f)
+            for dp, _, filenames in os.walk(path)
+            for f in filenames
+        ]
+
+        with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+            results = list(executor.map(self.check_image, all_files))
+
+        return sum(results)

@@ -1,5 +1,7 @@
+import io
 import os
 
+from PIL import Image as PILImage
 from PyQt5 import QtGui
 from PyQt5.QtCore import QRectF, Qt
 from PyQt5.QtGui import QIcon, QPixmap
@@ -19,7 +21,7 @@ from PyQt5.QtWidgets import (
 
 from image_quality_sampler import config
 from image_quality_sampler.GUI.utils.helpers import (
-    extract_image_metadata,
+    extract_readable_metadata,
     select_random_images,
 )
 from image_quality_sampler.reports import visualize
@@ -125,7 +127,6 @@ class ImageSamplingView(QWidget):
         # Layout for displaying images and metadata
         self.image_display_layout = QVBoxLayout()
 
-        # Image and metadata layout
         # Initialize QGraphicsView here
         self.graphics_view = QGraphicsView(self)
         self.graphics_view.setMinimumSize(50, 500)
@@ -133,7 +134,15 @@ class ImageSamplingView(QWidget):
         self.graphics_view.setScene(self.graphics_scene)
         self.graphics_view.setAlignment(Qt.AlignCenter)
         self.image_display_layout.addWidget(self.graphics_view)
+
+        # Metadata layout and labels
+        self.metadata_layout = QHBoxLayout()
+
         self.metadata_label = QLabel(self)
+        self.metadata_label_exif = QLabel(self)
+
+        self.metadata_layout.addWidget(self.metadata_label)
+        self.metadata_layout.addWidget(self.metadata_label_exif)
 
         # Progression and Rejections labels
         self.progressionLabel = QLabel(f"Progression: 0/{self.sample_size}")
@@ -153,7 +162,7 @@ class ImageSamplingView(QWidget):
 
         # Layout adjustments
         meta_layout = QVBoxLayout()
-        meta_layout.addWidget(self.metadata_label)
+        meta_layout.addLayout(self.metadata_layout)
         meta_layout.addLayout(btn_layout)
 
         self.image_display_layout.addLayout(meta_layout)
@@ -167,14 +176,38 @@ class ImageSamplingView(QWidget):
     def display_image(self):
         img_name = self.images[self.current_image_index]
         img_path = os.path.join(self.folder_path, img_name)
+        print(img_path)
+        # Try to load the image directly first
         pixmap = QPixmap(img_path)
 
+        # Check if the pixmap is invalid
+        if pixmap.isNull():
+            # Convert problematic images to a more display-friendly format
+            with PILImage.open(img_path) as img:
+                temp_jpg_data = io.BytesIO()
+                img.save(temp_jpg_data, format="JPEG")
+                pixmap.loadFromData(temp_jpg_data.getvalue())
+
+        # If the pixmap is still null, there's a serious problem
+        if pixmap.isNull():
+            print(f"Failed to display the image: {img_name}")
+            return
+
         # Extract metadata
-        metadata_dict = extract_image_metadata(img_path)
-        metadata_text = "\n".join(
-            [f"{key}: {value}" for key, value in metadata_dict.items()]
+        metadata_dict = extract_readable_metadata(img_path)
+
+        # Split the metadata for Basic and EXIF for different labels
+        basic_metadata = metadata_dict.get("Basic", {})
+        basic_metadata_text = "\n".join(
+            [f"{key}: {value}" for key, value in basic_metadata.items()]
         )
-        self.metadata_label.setText(metadata_text)
+        self.metadata_label.setText(basic_metadata_text)
+
+        exif_metadata = metadata_dict.get("EXIF", {})
+        exif_metadata_text = "\n".join(
+            [f"{key}: {value}" for key, value in exif_metadata.items()]
+        )
+        self.metadata_label_exif.setText(exif_metadata_text)
 
         self.update_counters()
 
@@ -184,7 +217,12 @@ class ImageSamplingView(QWidget):
         self.graphics_scene.setSceneRect(QRectF(pixmap.rect()))
 
         # Calculate the scaling factor
-        scale_factor = self.graphics_view.height() / pixmap.height()
+        try:
+            scale_factor = self.graphics_view.height() / pixmap.height()
+        except ZeroDivisionError:
+            print(f"Error calculating scale factor for image: {img_name}")
+            scale_factor = 1
+
         self.graphics_view.setTransform(
             QtGui.QTransform().scale(scale_factor, scale_factor)
         )

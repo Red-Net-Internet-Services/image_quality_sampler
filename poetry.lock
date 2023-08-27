@@ -233,20 +233,6 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
-name = "exifread"
-version = "3.0.0"
-description = "Read Exif metadata from tiff and jpeg files."
-optional = false
-python-versions = "*"
-files = [
-    {file = "ExifRead-3.0.0-py3-none-any.whl", hash = "sha256:2c5c59ef03b3bbee75b82b82d2498006b3c13509f35c9a76c7552faff73fa2d5"},
-    {file = "ExifRead-3.0.0.tar.gz", hash = "sha256:0ac5a364169dbdf2bd62f94f5c073970ab6694a3166177f5e448b10c943e2ca4"},
-]
-
-[package.extras]
-dev = ["mypy (==0.950)", "pylint (==2.13.8)"]
-
-[[package]]
 name = "flake8"
 version = "4.0.1"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -991,6 +977,41 @@ files = [
 ]
 
 [[package]]
+name = "pyexiv2"
+version = "2.8.2"
+description = "Read/Write metadata(including EXIF, IPTC, XMP), comment and ICC Profile embedded in digital images."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "pyexiv2-2.8.2-cp310-none-macosx_12_0_x86_64.whl", hash = "sha256:b2ef8ac26c84685768a5e264f5ee4ec19a84208f6843461511411cb272ef0cae"},
+    {file = "pyexiv2-2.8.2-cp310-none-macosx_13_0_x86_64.whl", hash = "sha256:70e3963bf8acbc8e4b784db261b72cf9e9acfdac5f3f4a37efd93742d7fdec34"},
+    {file = "pyexiv2-2.8.2-cp310-none-manylinux2014_x86_64.whl", hash = "sha256:4acaac4d1546c4fa280ac775bd44439b5a68c8ffa5d292867ec9751e89be4d3b"},
+    {file = "pyexiv2-2.8.2-cp310-none-win_amd64.whl", hash = "sha256:a86518cf0134444e5757c5fc29b10877534dc0d577d446d5dd84cfcd1d87d526"},
+    {file = "pyexiv2-2.8.2-cp311-none-macosx_12_0_x86_64.whl", hash = "sha256:d695f60b4af0ade4a7f068fddc5fd32a28c05e281dbd10e2d2a89d77d9fc2622"},
+    {file = "pyexiv2-2.8.2-cp311-none-macosx_13_0_x86_64.whl", hash = "sha256:468da66c51ee2a9ed03a298b2e98c5a59f4639c10ab5faaa3c833182ee6541dc"},
+    {file = "pyexiv2-2.8.2-cp311-none-manylinux2014_x86_64.whl", hash = "sha256:2a6d588d1638bb7708ade975ede4acae5052371ad1dd736d393952b7981b89ed"},
+    {file = "pyexiv2-2.8.2-cp311-none-win_amd64.whl", hash = "sha256:1e91cf9e2478e95b3df8033f02a9258452c32e1827b20485d9331ac36254b67a"},
+    {file = "pyexiv2-2.8.2-cp35-none-macosx_12_0_x86_64.whl", hash = "sha256:1b816cae4fba03f9e3bb498eae9d07ad58ba501076771aae4786d0b4c5e8cc47"},
+    {file = "pyexiv2-2.8.2-cp35-none-macosx_13_0_x86_64.whl", hash = "sha256:5afb05d4852e2c6bfff5960b5679ec9a0d85a85d8f9fc8167c3c11870031b45a"},
+    {file = "pyexiv2-2.8.2-cp35-none-win_amd64.whl", hash = "sha256:a886aee3064160a42b7c2edfa74148f6e2f7f79605799d9d422977add885026f"},
+    {file = "pyexiv2-2.8.2-cp36-none-macosx_12_0_x86_64.whl", hash = "sha256:b4cbf258a5d2486130abc53678d02c194f0e0b2941fc28e9a725025e95e6f0c4"},
+    {file = "pyexiv2-2.8.2-cp36-none-macosx_13_0_x86_64.whl", hash = "sha256:86c3428f6c7e7d41a959ad0a5adcf744ea6ab081c0c88827430a01752b5476cb"},
+    {file = "pyexiv2-2.8.2-cp36-none-win_amd64.whl", hash = "sha256:7392f9bb757e2574866405157ea0ea19fbf5a8f9a83dc9a2817ac787b7504cae"},
+    {file = "pyexiv2-2.8.2-cp37-none-macosx_12_0_x86_64.whl", hash = "sha256:06fdca0c1b9034a30441db0a91c412ee883e14b951ec8136871ba9d51d74b348"},
+    {file = "pyexiv2-2.8.2-cp37-none-macosx_13_0_x86_64.whl", hash = "sha256:0244d598afca420ee555899094dbaf8a05de73b380675c4d6873555f53320303"},
+    {file = "pyexiv2-2.8.2-cp37-none-manylinux2014_x86_64.whl", hash = "sha256:b1ca70f648b061894439b0be5c6de24bcf13034593bf6d9902e42c3eeb5da9c8"},
+    {file = "pyexiv2-2.8.2-cp37-none-win_amd64.whl", hash = "sha256:03ced33df0dc6f0441037c71aa38caefea71256e38727117a16b605252293d81"},
+    {file = "pyexiv2-2.8.2-cp38-none-macosx_12_0_x86_64.whl", hash = "sha256:26602c459122edb78d3bedf31259d99bed2b703c90ee76688f43949a1c6ff08c"},
+    {file = "pyexiv2-2.8.2-cp38-none-macosx_13_0_x86_64.whl", hash = "sha256:7515653858de3dbc723bee624fa7851f1ca8c0af44bf93d4d0f51c741f4e6c83"},
+    {file = "pyexiv2-2.8.2-cp38-none-manylinux2014_x86_64.whl", hash = "sha256:5617104912a5f356b989eff5834e7a4a2694d4b3a5c1c0f4c59feb805c140f86"},
+    {file = "pyexiv2-2.8.2-cp38-none-win_amd64.whl", hash = "sha256:27dcc496a0ed65267772510ac36d2bc4fadc6b7fade987695c3875c439a5beeb"},
+    {file = "pyexiv2-2.8.2-cp39-none-macosx_12_0_x86_64.whl", hash = "sha256:24c8fe931d62078b051b83e8e6d8f5dfa4f960c5e3fa98f47d01d660fa977a75"},
+    {file = "pyexiv2-2.8.2-cp39-none-macosx_13_0_x86_64.whl", hash = "sha256:cecc4b017deefca49dc27252798f3351c67b6bbfc079e44524a4abdc41c8cac3"},
+    {file = "pyexiv2-2.8.2-cp39-none-manylinux2014_x86_64.whl", hash = "sha256:530c6d41c818a8b41a54e3605e906732913f8e068952b4b6ba5ad3673eb07773"},
+    {file = "pyexiv2-2.8.2-cp39-none-win_amd64.whl", hash = "sha256:7d577ce634b4c7312d14fb50cadeb51694df082877e0e02cf648811cdd6d4fa5"},
+]
+
+[[package]]
 name = "pyflakes"
 version = "2.4.0"
 description = "passive checker of Python programs"
@@ -1275,6 +1296,18 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-magic-bin"
+version = "0.4.14"
+description = "File type identification using libmagic binary package"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python_magic_bin-0.4.14-py2.py3-none-macosx_10_6_intel.whl", hash = "sha256:7b1743b3dbf16601d6eedf4e7c2c9a637901b0faaf24ad4df4d4527e7d8f66a4"},
+    {file = "python_magic_bin-0.4.14-py2.py3-none-win32.whl", hash = "sha256:34a788c03adde7608028203e2dbb208f1f62225ad91518787ae26d603ae68892"},
+    {file = "python_magic_bin-0.4.14-py2.py3-none-win_amd64.whl", hash = "sha256:90be6206ad31071a36065a2fc169c5afb5e0355cbe6030e87641c6c62edc2b69"},
+]
+
+[[package]]
 name = "pywin32-ctypes"
 version = "0.2.2"
 description = "A (partial) reimplementation of pywin32 using ctypes/cffi"
@@ -1500,4 +1533,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.10,<3.13"
-content-hash = "8c23430d81c4402d94511407eba4fd80e6af329ae29a64923b235c4e83f734b1"
+content-hash = "e01f9f79592047e52cb3286fe7b39eec087135716173059204dc7aa8d6de6f2c"

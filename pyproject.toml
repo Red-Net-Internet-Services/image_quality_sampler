@@ -11,9 +11,10 @@ pillow = "^10.0.0"
 reportlab = "^4.0.4"
 pyqt5 = "^5.15.9"
 pyqt5-tools = "^5.15.9.3.3"
-exifread = "^3.0.0"
 watchdog = "^3.0.0"
 matplotlib = "^3.7.2"
+python-magic-bin = "^0.4.14"
+pyexiv2 = "^2.8.2"
 
 
 [tool.poetry.group.dev.dependencies]
