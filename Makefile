@@ -78,3 +78,9 @@ package:		## Create new executable for windows systems
 	@echo "Packaging up application..."
 	@poetry run pyinstaller --name "AMS Capture - Quality Control Module" --windowed --add-data ".\image_quality_sampler\resources\;resources" --icon ".\image_quality_sampler\resources\qc.ico" .\image_quality_sampler\__main__.py 
 	@echo "Application packaged. Check dist folder."
+
+.PHONY: debug
+debug:		## Create new executable for windows systems
+	@echo "Packaging up application..."
+	@poetry run pyinstaller --debug=imports --additional-hooks-dir hooks/ --name "AMS Capture - Quality Control Module" --add-data ".\image_quality_sampler\resources\;resources" --icon ".\image_quality_sampler\resources\qc.ico" .\image_quality_sampler\__main__.py 
+	@echo "Application packaged. Check dist folder."
