@@ -20,6 +20,7 @@ def start_watcher():  # pragma: no cover
 
 
 def main():  # pragma: no cover
+    print(os.getcwd())
     watcher_process = start_watcher()
     # Register the cleanup function
     atexit.register(watcher_process.terminate)
