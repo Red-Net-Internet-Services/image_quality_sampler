@@ -53,6 +53,7 @@ class ImageSamplingView(QWidget):
         self.rejections = 0
         self.rejected_images = []
         self.current_image_index = 0
+        self.new_status = ""
         self.images = select_random_images(self.folder_path, self.sample_size)
         self.initUI()
 
@@ -63,7 +64,7 @@ class ImageSamplingView(QWidget):
         # Display the initial content
         self.display_image()
 
-        self.setWindowTitle("Image Sampling")
+        self.setWindowTitle("Ποιοτικός Έλεγχος")
         self.showMaximized()
 
     def initToolbar(self):
@@ -145,14 +146,14 @@ class ImageSamplingView(QWidget):
         self.metadata_layout.addWidget(self.metadata_label_exif)
 
         # Progression and Rejections labels
-        self.progressionLabel = QLabel(f"Progression: 0/{self.sample_size}")
-        self.rejectionsLabel = QLabel(f"Rejections: 0/{self.rejection_size}")
+        self.progressionLabel = QLabel(f"Πρόοδος: 0/{self.sample_size}")
+        self.rejectionsLabel = QLabel(f"Απορρίψεις: 0/{self.rejection_size}")
         self.image_display_layout.addWidget(self.progressionLabel)
         self.image_display_layout.addWidget(self.rejectionsLabel)
 
         # Accept and Reject buttons
-        self.acceptButton = QPushButton("Accept", self)
-        self.rejectButton = QPushButton("Reject", self)
+        self.acceptButton = QPushButton("Αποδοχή", self)
+        self.rejectButton = QPushButton("Απόρριψη", self)
         self.acceptButton.clicked.connect(self.accept_image)
         self.rejectButton.clicked.connect(self.reject_image)
 
@@ -214,7 +215,18 @@ class ImageSamplingView(QWidget):
         # Update QGraphicsView content
         self.graphics_scene.clear()  # Clear previous content
         self.graphics_scene.addPixmap(pixmap)
-        self.graphics_scene.setSceneRect(QRectF(pixmap.rect()))
+        self.graphics_scene.setSceneRect(QRectF(pixmap.rect()))  # Resize scene to image size
+
+        # Set a specific background color for QGraphicsView and QGraphicsScene
+        bgColor = QtGui.QColor(240, 240, 240)  # Light gray, change as needed
+        self.graphics_view.setBackgroundBrush(QtGui.QBrush(bgColor))
+        self.graphics_scene.setBackgroundBrush(QtGui.QBrush(bgColor))
+
+        # Remove scroll bars and fit the image in the view
+        self.graphics_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.graphics_view.setAlignment(Qt.AlignCenter)
+        self.graphics_view.fitInView(self.graphics_scene.sceneRect(), Qt.KeepAspectRatio)
 
         # Calculate the scaling factor
         try:
@@ -237,7 +249,7 @@ class ImageSamplingView(QWidget):
             QMessageBox.information(
                 self, "Done", "All images have been processed."
             )
-            self.update_batch("PASSED")
+            self.update_batch("ΠΡΟΣ ΠΑΡΑΔΟΣΗ")
             self.main_window.show()
             self.package_data()
             self.close()  # Close the view
@@ -252,15 +264,17 @@ class ImageSamplingView(QWidget):
         if self.rejections >= self.rejection_size:
             QMessageBox.warning(
                 self,
-                "Batch Rejected",
-                "The batch has been rejected due to excessive errors.",
+                "Απόρριψη Παρτίδας",
+                "Η παρτίδα έχει απορριφθεί λόγο υπέρβασης ορίου σφάλματων.",
             )
             self.exit_flag = False
             self.main_window.show()
             if self.current_status[4] > 0:
-                self.update_batch("REJECTED")
+                self.new_status = "ΕΠΑΝΑΣΑΡΩΣΗ"
+                self.update_batch(self.new_status)
             else:
-                self.update_batch("TEMP REJECTED")
+                self.new_status = "ΕΠΑΝΑΣΑΡΩΣΗ"
+                self.update_batch(self.new_status)
             self.package_data()
             self.close()  # Close the view
             return
@@ -268,18 +282,18 @@ class ImageSamplingView(QWidget):
 
     def update_counters(self):
         self.progressionLabel.setText(
-            f"Progression: {self.current_image_index + 1}/{self.sample_size}"
+            f"Πρόοδος: {self.current_image_index + 1}/{self.sample_size}"
         )
         self.rejectionsLabel.setText(
-            f"Rejections: {self.rejections}/{self.rejection_size}"
+            f"Απορρίψεις: {self.rejections}/{self.rejection_size}"
         )
 
     def closeEvent(self, event):
         if self.exit_flag:
             reply = QMessageBox.question(
                 self,
-                "Confirm Exit",
-                "All progress will be lost. Are you sure you want to exit?",
+                "Ακύρωση",
+                "Η διαδικασία θα ακυρωθεί, είστε βέβαιως;",
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.No,
             )
@@ -305,16 +319,20 @@ class ImageSamplingView(QWidget):
 
     def get_rejection_reason(self):
         reasons = [
-            "Bad Deskew",
-            "Bad cropping",
-            "Wrong color depth",
-            "Wrong file name",
-            "Wrong file type",
+            "Λάθος ανάλυση",
+            "Λάθος προσανατολισμός",
+            "Απώλια πληροφορίας",
+            "Μη εστιασμένη εικόνα",
+            "Γραμμές, Γρατζουνίες, Στίγματα",
+            "Λάθος βάθος χρώματος",
+            "Λάθος ονομασία",
+            "Λάθος μορφότυπος",
+            "Κενό περιθώριο",
         ]
         reason, ok = QInputDialog.getItem(
             self,
-            "Rejection Reason",
-            "Select a reason for rejection:",
+            "Λόγος απόρριψης",
+            "Επιλέξτε λόγο απόρριψης:",
             reasons,
             0,
             False,
@@ -325,21 +343,28 @@ class ImageSamplingView(QWidget):
 
     def package_data(self):
         config_data = self.db.get_configuration()
+        # Retrieve all subfolder names within folder_path
+        subfolders = [os.path.relpath(os.path.join(dirpath, dirname), self.folder_path)
+                      for dirpath, dirnames, _ in os.walk(self.folder_path)
+                      for dirname in dirnames]
+
         sampling_results = {
-            "Batch Name": self.batch_name,
+            "Όνομα Παρτίδας": self.batch_name,
             "Lot": self.current_status[
                 3
             ],  # Assuming this is the correct index for Lot
-            "Documents": self.current_status[2],
-            "Sample": self.sample_size,
-            "Sampling Plan": self.rejection_size,
-            "Checked Images": [
+            "Τεκμήρια": self.current_status[2],
+            "Μέγεθος Δείγματος": self.sample_size,
+            "Μέγιστες Απορρίψεις": self.rejection_size,
+            "Εικόνες Που Ελέχθηκαν": [
                 os.path.join(self.folder_path, img) for img in self.images
             ],
             "Rejected Images": self.rejected_images,
-            "Project": config_data[0],
-            "Location": config_data[1],
-            "User 1": self.name1,
-            "User 2": self.name2,
+            "Έργο": config_data[0],
+            "Τοποθεσία": config_data[1],
+            "Status": self.new_status,
+            "Χρήστης Φορέα": self.name1,
+            "Χρήστης Ανάδοχου": self.name2,
+            "Subfolders": subfolders
         }
         visualize.create_report(sampling_results)

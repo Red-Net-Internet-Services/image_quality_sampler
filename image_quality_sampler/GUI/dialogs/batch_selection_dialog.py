@@ -28,7 +28,7 @@ class BatchSelectionDialog(QDialog):
         super().__init__(parent)
         self.db = db
         self.main_window = main_window
-        self.setWindowTitle("Start Sampling")
+        self.setWindowTitle("Έναρξη Ελέγχου")
         self.setFixedWidth(800)
 
         # Create widgets for each step
@@ -43,9 +43,9 @@ class BatchSelectionDialog(QDialog):
         self.layout = QVBoxLayout()
         self.button_layout = QHBoxLayout()  # Horizontal layout for buttons
 
-        self.next_button = QPushButton("Next")
-        self.back_button = QPushButton("Back")
-        self.start_button = QPushButton("Start Sampling")
+        self.next_button = QPushButton("Επόμενο")
+        self.back_button = QPushButton("Πίσω")
+        self.start_button = QPushButton("Έναρξη")
 
         # Add buttons to the horizontal layout
         self.button_layout.addWidget(self.back_button)
@@ -72,14 +72,14 @@ class BatchSelectionDialog(QDialog):
         layout = QVBoxLayout()
 
         # GroupBox for Batch Selection
-        batch_groupbox = QGroupBox("Batch Selection")
+        batch_groupbox = QGroupBox("Επιλογή Παρτίδας")
         batch_layout = QVBoxLayout()
 
         # Dropdown for batch selection
         self.batch_dropdown = QComboBox()
         batches = self.db.get_all_batches()
         for batch in batches:
-            if batch[5] != "PASSED" and batch[5] != "REJECTED":
+            if batch[5] != "ΠΡΟΣ ΠΑΡΑΔΟΣΗ" and batch[5] != "ΕΠΑΝΑΣΑΡΩΣΗ":
                 self.batch_dropdown.addItem(batch[1], batch)
 
         # Display area for batch details
@@ -148,7 +148,7 @@ class BatchSelectionDialog(QDialog):
         protocol_layout.addWidget(self.aql_dropdown)
 
         # Display Area for ANSI Sampling Details
-        self.details_label = QLabel("Sampling Details")
+        self.details_label = QLabel("Λεπτομέριες ANSI")
         self.details_label.setAlignment(Qt.AlignCenter)
         protocol_layout.addWidget(self.details_label)
 
@@ -174,7 +174,7 @@ class BatchSelectionDialog(QDialog):
         layout = QVBoxLayout()
 
         # GroupBox for User Details
-        user_groupbox = QGroupBox("User Details")
+        user_groupbox = QGroupBox("Λεπτομέριες Προσώπων")
         user_layout = QVBoxLayout()
 
         int_layout1 = QHBoxLayout()
@@ -209,7 +209,7 @@ class BatchSelectionDialog(QDialog):
         layout = QVBoxLayout()
 
         # GroupBox for Overview
-        overview_groupbox = QGroupBox("Overview")
+        overview_groupbox = QGroupBox("Σύνοψη")
         overview_layout = QVBoxLayout()
         overview_layout.setAlignment(Qt.AlignCenter)
 
@@ -291,10 +291,10 @@ class BatchSelectionDialog(QDialog):
         batch = self.batch_dropdown.itemData(index)
         details = textwrap.dedent(
             f"""
-        Folder Count: {batch[2]}
-        Images: {batch[3]}
-        Sample Attempts: {batch[4]}
-        Status: {batch[5]}
+        Τεκμήρια: {batch[2]}
+        Εικόνες: {batch[3]}
+        Πλήθος Ελέγχων: {batch[4]}
+        Κατάσταση: {batch[5]}
         """
         ).strip()
         self.batch_details_label.setText(details)
@@ -334,16 +334,16 @@ class BatchSelectionDialog(QDialog):
         # Update the display widgets
         details = textwrap.dedent(
             f"""
-        Sample Size : {self.sample_size}
-        Accept up to: {self.accepted}
-        Reject if: {self.rejected}
+        Μέγεθος Δείγματος : {self.sample_size}
+        Αποδεκτή έως: {self.accepted}
+        Απόρριψη εάν: {self.rejected}
         """
         ).strip()
         self.details_label.setText(details)
 
     def update_selected_batch(self):
         selected_batch = self.batch_dropdown.currentText()
-        self.selected_batch_label.setText(f"Selected Batch: {selected_batch}")
+        self.selected_batch_label.setText(f"Επιλεγμένη Παρτίδα: {selected_batch}")
 
     def update_selected_protocol(self):
         selected_level = (

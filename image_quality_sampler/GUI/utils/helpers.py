@@ -1,33 +1,78 @@
 import os
 import random
-
+import mimetypes
 import magic
-import pyexiv2
+# import pyexiv2
 from PIL import Image
 
 
+def is_jp2(file_path):
+    try:
+        with open(file_path, 'rb') as file:
+            header = file.read(12)
+            # JP2 files start with 0x0000000C, followed by 'jP  ' (0x6A502020), and then 0x0D0A870A
+            if header.startswith(b'\x00\x00\x00\x0CjP \x20\x0D\x0A\x87\x0A'):
+                return True
+    except Exception as e:
+        print(f"Error reading file {file_path}: {e}")
+
+    return False
+
+
+def check_image(file):
+    mime_type, _ = mimetypes.guess_type(file)
+
+    if not mime_type or not mime_type.startswith("image"):
+        mime_type = magic.from_file(file, mime=True)
+
+    if mime_type and mime_type.startswith("image"):
+        return 1
+
+    # Check for JP2 files specifically
+    if is_jp2(file):
+        return 1
+
+    return 0
+
+
 def select_random_images(folder_path, sample_size):
+    subfolder_images = {}
     all_images = []
 
-    # Walk through all subdirectories
+    # Walk through all subdirectories and collect images
     for dirpath, _, filenames in os.walk(folder_path):
         for f in filenames:
             full_path = os.path.join(dirpath, f)
             try:
-                mime_type = magic.from_file(full_path, mime=True)
-                if mime_type and mime_type.startswith("image/"):
+                # mime_type = magic.from_file(full_path, mime=True)
+                if check_image(full_path):
+                    if dirpath not in subfolder_images:
+                        subfolder_images[dirpath] = []
+                    subfolder_images[dirpath].append(full_path)
                     all_images.append(full_path)
             except Exception as e:
                 print(e)
-                pass
 
     # Ensure there are enough images to sample
     if len(all_images) < sample_size:
         raise ValueError(
-            f"Only {len(all_images)} images found, but sample is{sample_size}."
+            f"Only {len(all_images)} images found, but sample size is {sample_size}."
         )
 
-    return random.sample(all_images, sample_size)
+    selected_images = []
+
+    # Select one image from each subfolder
+    for images in subfolder_images.values():
+        if images:  # Check if there are images in the subfolder
+            selected_images.append(random.choice(images))
+
+    # If more images are needed, select randomly from all images
+    if len(selected_images) < sample_size:
+        remaining_sample_size = sample_size - len(selected_images)
+        remaining_images = list(set(all_images) - set(selected_images))
+        selected_images.extend(random.sample(remaining_images, remaining_sample_size))
+
+    return selected_images
 
 
 def extract_readable_metadata(img_path):
@@ -53,36 +98,36 @@ def extract_readable_metadata(img_path):
 
         metadata["Basic"] = basic_data
 
-    with pyexiv2.Image(img_path) as exiv_img:
-        # Extracting EXIF data
-        exif_data = exiv_img.read_exif()
-        human_readable_tags = [
-            "Exif.Image.Make",
-            "Exif.Image.Model",
-            "Exif.Image.Software",
-            "Exif.Photo.DateTimeOriginal",
-            "Exif.Photo.DateTimeDigitized",
-            "Exif.Photo.ShutterSpeedValue",
-            "Exif.Photo.ApertureValue",
-            "Exif.Photo.ExposureBiasValue",
-            "Exif.Photo.MeteringMode",
-            "Exif.Photo.Flash",
-            "Exif.Photo.FocalLength",
-            "Exif.Photo.ISOSpeedRatings",
-            "Exif.Photo.ExposureTime",
-            "Exif.Photo.FNumber",
-            "Exif.Photo.ExposureProgram",
-            "Exif.Photo.WhiteBalance",
-            "Exif.Photo.LensModel",
-        ]
+    # with pyexiv2.Image(img_path) as exiv_img:
+    #     # Extracting EXIF data
+    #     exif_data = exiv_img.read_exif()
+    #     human_readable_tags = [
+    #         "Exif.Image.Make",
+    #         "Exif.Image.Model",
+    #         "Exif.Image.Software",
+    #         "Exif.Photo.DateTimeOriginal",
+    #         "Exif.Photo.DateTimeDigitized",
+    #         "Exif.Photo.ShutterSpeedValue",
+    #         "Exif.Photo.ApertureValue",
+    #         "Exif.Photo.ExposureBiasValue",
+    #         "Exif.Photo.MeteringMode",
+    #         "Exif.Photo.Flash",
+    #         "Exif.Photo.FocalLength",
+    #         "Exif.Photo.ISOSpeedRatings",
+    #         "Exif.Photo.ExposureTime",
+    #         "Exif.Photo.FNumber",
+    #         "Exif.Photo.ExposureProgram",
+    #         "Exif.Photo.WhiteBalance",
+    #         "Exif.Photo.LensModel",
+    #     ]
 
-        filtered_exif_data = {
-            k.split(".")[-1]: v
-            for k, v in exif_data.items()
-            if k in human_readable_tags
-        }
-        if filtered_exif_data:
-            metadata["EXIF"] = filtered_exif_data
+    #     filtered_exif_data = {
+    #         k.split(".")[-1]: v
+    #         for k, v in exif_data.items()
+    #         if k in human_readable_tags
+    #     }
+    #     if filtered_exif_data:
+    #         metadata["EXIF"] = filtered_exif_data
 
     return metadata
 

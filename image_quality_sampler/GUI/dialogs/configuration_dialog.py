@@ -19,7 +19,7 @@ class ConfigurationDialog(QDialog):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Configurator")
+        self.setWindowTitle("Ρυθμίσεις")
         self.resize(800, 0)
 
         # Set up the layout
@@ -27,13 +27,13 @@ class ConfigurationDialog(QDialog):
         self.setWindowFlag(QtCore.Qt.MSWindowsFixedSizeDialogHint, True)
 
         # Project Name
-        self.project_name_label = QLabel("Project Name:")
+        self.project_name_label = QLabel("Όνομα έργου:")
         self.project_name_input = QLineEdit(self)
         layout.addWidget(self.project_name_label)
         layout.addWidget(self.project_name_input)
 
         # Location
-        self.location_label = QLabel("Location:")
+        self.location_label = QLabel("Τοποθεσία:")
         self.location_input = QLineEdit(self)
         layout.addWidget(self.location_label)
         layout.addWidget(self.location_input)
@@ -41,16 +41,16 @@ class ConfigurationDialog(QDialog):
         btn_layout = QHBoxLayout()
 
         # Batch Folder
-        self.batch_folder_label = QLabel("Batch Folder:")
+        self.batch_folder_label = QLabel("Φάκελος Παρτίδων:")
         self.batch_folder_input = QLineEdit(self)
-        self.select_folder_button = QPushButton("Select Folder", self)
+        self.select_folder_button = QPushButton("Επιλογή Φακέλου", self)
         self.select_folder_button.clicked.connect(self.select_folder)
         layout.addWidget(self.batch_folder_label)
         layout.addWidget(self.batch_folder_input)
         btn_layout.addWidget(self.select_folder_button)
 
         # Save Button
-        self.save_button = QPushButton("Save", self)
+        self.save_button = QPushButton("Αποθήκευση", self)
         self.save_button.clicked.connect(self.save_details)
         btn_layout.addWidget(self.save_button)
         layout.addLayout(btn_layout)

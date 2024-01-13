@@ -54,12 +54,12 @@ class CentralView(QMainWindow):
         btn_layout = QHBoxLayout()
 
         # Create a button to update the view by re-analyzing
-        self.updateButton = QPushButton("Refresh", self)
+        self.updateButton = QPushButton("Ανανέωση", self)
         self.updateButton.clicked.connect(self.update_view)
         btn_layout.addWidget(self.updateButton)
 
         # Create a button to update the view by re-analyzing
-        self.startSampleButton = QPushButton("Start Sampling", self)
+        self.startSampleButton = QPushButton("Έναρξη Ελέγχου", self)
         self.startSampleButton.clicked.connect(
             self.open_sampling_initialization_view
         )
@@ -80,17 +80,17 @@ class CentralView(QMainWindow):
         menu_bar = QMenuBar(self)
 
         # Create a 'File' menu
-        file_menu = QMenu("File", self)
-        view_menu = QMenu("View", self)
+        file_menu = QMenu("Αρχείο", self)
+        view_menu = QMenu("Προβολή", self)
         menu_bar.addMenu(file_menu)
         menu_bar.addMenu(view_menu)
 
         # Add 'Configure' action to the 'File' menu
-        start_configuration = QAction("Configure...", self)
+        start_configuration = QAction("Ρύθμιση...", self)
         start_configuration.triggered.connect(self.open_config_dialog)
         file_menu.addAction(start_configuration)
 
-        update_view = QAction("Refresh", self)
+        update_view = QAction("Ανανέωση", self)
         update_view.triggered.connect(self.update_view)
         view_menu.addAction(update_view)
 
@@ -127,11 +127,11 @@ class CentralView(QMainWindow):
         self.tableWidget.setColumnCount(5)  # Updated column count
         self.tableWidget.setHorizontalHeaderLabels(
             [
-                "Batch Name",
-                "Subfolder Count",
-                "Image Count",
-                "Sampling Attempts",
-                "Status",
+                "Παρτίδα",
+                "Τεκμήρια",
+                "Πλήθος Εικόνων",
+                "Αριθμός Ελέγχων",
+                "Κατάσταση",
             ]
         )
         # Hide the grid
@@ -165,13 +165,13 @@ class CentralView(QMainWindow):
             status_item.setFlags(status_item.flags() & ~Qt.ItemIsEditable)
 
             # Color rows based on status
-            if data["status"] == "REJECTED":
+            if data["status"] == "ΕΠΑΝΑΣΑΡΩΣΗ":
                 color = QColor("red")
-            elif data["status"] == "TEMP REJECTED":
+            elif data["status"] == "ΔΙΟΡΘΩΣΗ":
                 color = QColor("yellow")
-            elif data["status"] == "PENDING":
+            elif data["status"] == "ΑΝΑΜΟΝΗ":
                 color = QColor("cyan")
-            elif data["status"] == "PASSED":
+            elif data["status"] == "ΠΡΟΣ ΠΑΡΑΔΟΣΗ":
                 color = QColor("green")
             else:
                 color = QColor("white")  # default color

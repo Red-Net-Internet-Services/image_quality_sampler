@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import time
+import re
 from concurrent.futures import ThreadPoolExecutor
 
 import magic
@@ -51,7 +52,7 @@ class Watcher:
                         data["subfolder_count"],
                         data["image_count"],
                         "0",
-                        "PENDING",
+                        "ANAMONH",
                     )
         # Step 1: Fetch all batch names from the database
         all_batches = db.get_all_batches()
@@ -107,32 +108,51 @@ class Watcher:
 
     def analyze_batch_folder(self, batch_folder_path):
         batch_data = []
+        # Regex pattern to match folders ending with ΠΑ_ followed by a single digit
+        pattern = re.compile(r'ΠΑ_[0-9]+$')
+
         for item in os.listdir(batch_folder_path):
-            item_path = os.path.join(batch_folder_path, item)
-            if os.path.isdir(item_path) and item.startswith("BATCH"):
+            if re.search(pattern, item) and os.path.isdir(os.path.join(batch_folder_path, item)):
                 subfolder_count = 0
-                image_count = self.recursive_image_count(item_path)
-                for subitem in os.listdir(item_path):
-                    subitem_path = os.path.join(item_path, subitem)
-                    if os.path.isdir(subitem_path):
+                image_count = self.recursive_image_count(os.path.join(batch_folder_path, item))
+                for subitem in os.listdir(os.path.join(batch_folder_path, item)):
+                    if os.path.isdir(os.path.join(batch_folder_path, item, subitem)):
                         subfolder_count += 1
-                batch_data.append(
-                    {
-                        "batch_name": item,
-                        "subfolder_count": subfolder_count,
-                        "image_count": image_count,
-                    }
-                )
+                batch_data.append({
+                    "batch_name": item,
+                    "subfolder_count": subfolder_count,
+                    "image_count": image_count,
+                })
+
         return batch_data
+
+    def is_jp2(self, file_path):
+        try:
+            with open(file_path, 'rb') as file:
+                header = file.read(12)
+                # JP2 files start with 0x0000000C, followed by 'jP  ' (0x6A502020), and then 0x0D0A870A
+                if header.startswith(b'\x00\x00\x00\x0CjP \x20\x0D\x0A\x87\x0A'):
+                    return True
+        except Exception as e:
+            print(f"Error reading file {file_path}: {e}")
+
+        return False
 
     def check_image(self, file):
         mime_type, _ = mimetypes.guess_type(file)
 
-        # If mimetypes fails, fall back to python-magic.
         if not mime_type or not mime_type.startswith("image"):
             mime_type = magic.from_file(file, mime=True)
 
-        return 1 if mime_type and mime_type.startswith("image") else 0
+        if mime_type and mime_type.startswith("image"):
+            return 1
+
+        # Check for JP2 files specifically
+        if self.is_jp2(file):
+            return 1
+
+        return 0
+
 
     def recursive_image_count(self, path):
         all_files = [
