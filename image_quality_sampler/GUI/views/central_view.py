@@ -90,6 +90,11 @@ class CentralView(QMainWindow):
         start_configuration.triggered.connect(self.open_config_dialog)
         file_menu.addAction(start_configuration)
 
+        # Add 'Configure' action to the 'File' menu
+        clear_db = QAction("Delete DB!", self)
+        clear_db.triggered.connect(self.clear_db_action)
+        file_menu.addAction(clear_db)
+
         update_view = QAction("Ανανέωση", self)
         update_view.triggered.connect(self.update_view)
         view_menu.addAction(update_view)
@@ -97,9 +102,14 @@ class CentralView(QMainWindow):
         # Set the menu bar to the window
         self.setMenuBar(menu_bar)
 
+    def clear_db_action(self):
+        self.db.delete_all_batches()
+
     def open_sampling_initialization_view(self):
         # Open the Sampling Initialization View
         self.sampling_init_view = BatchSelectionDialog(self.db, self)
+        if self.sampling_init_view.empty_batches:
+            return
         self.sampling_init_view.exec()
 
     def open_config_dialog(self):
@@ -169,7 +179,7 @@ class CentralView(QMainWindow):
                 color = QColor("red")
             elif data["status"] == "ΔΙΟΡΘΩΣΗ":
                 color = QColor("yellow")
-            elif data["status"] == "ΑΝΑΜΟΝΗ":
+            elif data["status"] == "ANAMONH":
                 color = QColor("cyan")
             elif data["status"] == "ΠΡΟΣ ΠΑΡΑΔΟΣΗ":
                 color = QColor("green")

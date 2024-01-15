@@ -138,5 +138,9 @@ class DatabaseManager:
         )
         self.conn.commit()
 
+    def delete_all_batches(self):
+        self.cursor.execute("DELETE FROM batches")
+        self.conn.commit()
+
     def close(self):
         self.conn.close()

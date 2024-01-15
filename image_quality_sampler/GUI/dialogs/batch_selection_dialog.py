@@ -26,6 +26,7 @@ from image_quality_sampler.GUI.views.image_sampling_view import (
 class BatchSelectionDialog(QDialog):
     def __init__(self, db, main_window, parent=None):
         super().__init__(parent)
+        self.empty_batches = False
         self.db = db
         self.main_window = main_window
         self.setWindowTitle("Έναρξη Ελέγχου")
@@ -61,8 +62,9 @@ class BatchSelectionDialog(QDialog):
         self.start_button.clicked.connect(self.start_sampling)
 
         # Initialize with the first step
-        self.current_step = 1
-        self.show_step(self.current_step)
+        if not self.empty_batches:
+            self.current_step = 1
+            self.show_step(self.current_step)
 
         # Set the main layout of the dialog
         self.setLayout(self.layout)
@@ -86,7 +88,12 @@ class BatchSelectionDialog(QDialog):
         self.batch_details_label = QLabel(
             "Select a batch to view its details."
         )
-        self.update_batch_details(self.batch_dropdown.currentIndex())
+        try:
+            self.update_batch_details(self.batch_dropdown.currentIndex())
+        except Exception as e:
+            print(f"Error: {e}")
+            self.empty_batches = True
+            return
         self.batch_details_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
         # Connect dropdown signal to update details display

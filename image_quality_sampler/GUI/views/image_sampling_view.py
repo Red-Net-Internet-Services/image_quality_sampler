@@ -8,7 +8,6 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QAction,
     QGraphicsScene,
-    QGraphicsView,
     QHBoxLayout,
     QInputDialog,
     QLabel,
@@ -25,6 +24,7 @@ from image_quality_sampler.GUI.utils.helpers import (
     select_random_images,
 )
 from image_quality_sampler.reports import visualize
+from image_quality_sampler.GUI.views.sample_graphic_view import SamplingGraphicView
 
 
 class ImageSamplingView(QWidget):
@@ -129,7 +129,7 @@ class ImageSamplingView(QWidget):
         self.image_display_layout = QVBoxLayout()
 
         # Initialize QGraphicsView here
-        self.graphics_view = QGraphicsView(self)
+        self.graphics_view = SamplingGraphicView(self)
         self.graphics_view.setMinimumSize(50, 500)
         self.graphics_scene = QGraphicsScene()
         self.graphics_view.setScene(self.graphics_scene)
@@ -223,8 +223,8 @@ class ImageSamplingView(QWidget):
         self.graphics_scene.setBackgroundBrush(QtGui.QBrush(bgColor))
 
         # Remove scroll bars and fit the image in the view
-        self.graphics_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.graphics_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.graphics_view.setAlignment(Qt.AlignCenter)
         self.graphics_view.fitInView(self.graphics_scene.sceneRect(), Qt.KeepAspectRatio)
 
@@ -249,14 +249,18 @@ class ImageSamplingView(QWidget):
             QMessageBox.information(
                 self, "Done", "All images have been processed."
             )
-            self.update_batch("ΠΡΟΣ ΠΑΡΑΔΟΣΗ")
+            self.new_status = "ΠΡΟΣ ΠΑΡΑΔΟΣΗ"
+            self.update_batch(self.new_status)
             self.main_window.show()
             self.package_data()
             self.close()  # Close the view
 
     def reject_image(self):
         reason = self.get_rejection_reason()
-        self.rejections += 1
+        if reason is None:
+            return  # User canceled the Window
+        if reason != "ΠΑΡΑΔΟΧΗ":
+            self.rejections += 1
         # Store the rejected image and its reason
         img_name = self.images[self.current_image_index]
         img_path = os.path.join(self.folder_path, img_name)
@@ -273,7 +277,7 @@ class ImageSamplingView(QWidget):
                 self.new_status = "ΕΠΑΝΑΣΑΡΩΣΗ"
                 self.update_batch(self.new_status)
             else:
-                self.new_status = "ΕΠΑΝΑΣΑΡΩΣΗ"
+                self.new_status = "ΔΙΟΡΘΩΣΗ"
                 self.update_batch(self.new_status)
             self.package_data()
             self.close()  # Close the view
@@ -321,13 +325,14 @@ class ImageSamplingView(QWidget):
         reasons = [
             "Λάθος ανάλυση",
             "Λάθος προσανατολισμός",
-            "Απώλια πληροφορίας",
+            "Απώλεια πληροφορίας",
             "Μη εστιασμένη εικόνα",
             "Γραμμές, Γρατζουνίες, Στίγματα",
             "Λάθος βάθος χρώματος",
             "Λάθος ονομασία",
             "Λάθος μορφότυπος",
             "Κενό περιθώριο",
+            "ΠΑΡΑΔΟΧΗ",
         ]
         reason, ok = QInputDialog.getItem(
             self,
@@ -335,7 +340,7 @@ class ImageSamplingView(QWidget):
             "Επιλέξτε λόγο απόρριψης:",
             reasons,
             0,
-            False,
+            True,
         )
         if ok and reason:
             return reason
@@ -368,3 +373,11 @@ class ImageSamplingView(QWidget):
             "Subfolders": subfolders
         }
         visualize.create_report(sampling_results)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_F1:
+            self.acceptButton.click()
+        elif event.key() == Qt.Key_F2:
+            self.rejectButton.click()
+        else:
+            super(ImageSamplingView, self).keyPressEvent(event)

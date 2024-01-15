@@ -16,7 +16,6 @@ from reportlab.platypus import (
 )
 from PyQt5.QtWidgets import QFileDialog
 from image_quality_sampler import config
-from reportlab.lib.pagesizes import landscape
 
 
 def generate_pdf(data, file_path):
@@ -53,12 +52,8 @@ def generate_pdf(data, file_path):
             story.append(p)
     story.append(PageBreak())
 
-    # Tables
-    story.append(Paragraph("Πίνακες", styles["Heading2"]))
-    story.append(Spacer(0.5, inch))
-
-    # Add a Table for Subfolders
-    if "Subfolders" in data:
+    # Add a Table for Subfolders, Checked Images, Rejected Images
+    if data["Subfolders"]:
         story.append(Paragraph("Τεκμήρια:", styles["Heading3"]))
         subfolder_table_data = [[subfolder] for subfolder in data["Subfolders"]]
         subfolder_table = Table(subfolder_table_data, colWidths=[6 * inch])  # Adjust column width as needed
@@ -69,48 +64,50 @@ def generate_pdf(data, file_path):
         ]))
         story.extend([subfolder_table, PageBreak()])
 
-    story.append(Paragraph("Εικόνες που ελέχθηκαν:", styles["Heading3"]))
-    checked_table_data = [
-        [
-            Paragraph(os.path.join(
-                os.path.basename(os.path.dirname(img)), os.path.basename(img)
-            ), styles["BodyText"])
+    if data["Εικόνες Που Ελέχθηκαν"]:
+        story.append(Paragraph("Εικόνες που ελέχθηκαν:", styles["Heading3"]))
+        checked_table_data = [
+            [
+                Paragraph(os.path.join(
+                    os.path.basename(os.path.dirname(img)), os.path.basename(img)
+                ), styles["BodyText"])
+            ]
+            for img in data["Εικόνες Που Ελέχθηκαν"]
         ]
-        for img in data["Εικόνες Που Ελέχθηκαν"]
-    ]
-    checked_table = Table(checked_table_data, colWidths=[6 * inch])
-    checked_table.setStyle(TableStyle([
-            ("GRID", (0, 0), (-1, -1), 1, (0, 0, 0)),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("WORDWRAP", (0, 0), (-1, -1), "LTR"),  # Enable word wrapping
-        ]))
-    story.extend([checked_table, PageBreak()])
+        checked_table = Table(checked_table_data, colWidths=[6 * inch])
+        checked_table.setStyle(TableStyle([
+                ("GRID", (0, 0), (-1, -1), 1, (0, 0, 0)),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("WORDWRAP", (0, 0), (-1, -1), "LTR"),  # Enable word wrapping
+            ]))
+        story.extend([checked_table, PageBreak()])
 
-    story.append(Paragraph("Εικόνες που απορρίφθηκαν:", styles["Heading3"]))
-    rejected_table_data = [
-        [
-            Paragraph(os.path.join(
-                os.path.basename(os.path.dirname(img)), os.path.basename(img)
-            ),
-                styles["BodyText"]),
-            Paragraph(reason, styles["BodyText"]),
+    if data["Rejected Images"]:
+        story.append(Paragraph("Εικόνες που απορρίφθηκαν:", styles["Heading3"]))
+        rejected_table_data = [
+            [
+                Paragraph(os.path.join(
+                    os.path.basename(os.path.dirname(img)), os.path.basename(img)
+                ),
+                    styles["BodyText"]),
+                Paragraph(reason, styles["BodyText"]),
+            ]
+            for img, reason in data["Rejected Images"]
         ]
-        for img, reason in data["Rejected Images"]
-    ]
-    rejected_table = Table(rejected_table_data, colWidths=[4 * inch, 2 * inch])
-    rejected_table.setStyle(TableStyle([
-            ("GRID", (0, 0), (-1, -1), 1, (0, 0, 0)),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("WORDWRAP", (0, 0), (-1, -1), "LTR"),  # Enable word wrapping
-        ]))
-    story.extend([rejected_table, PageBreak()])
+        rejected_table = Table(rejected_table_data, colWidths=[4 * inch, 2 * inch])
+        rejected_table.setStyle(TableStyle([
+                ("GRID", (0, 0), (-1, -1), 1, (0, 0, 0)),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("WORDWRAP", (0, 0), (-1, -1), "LTR"),  # Enable word wrapping
+            ]))
+        story.extend([rejected_table, PageBreak()])
 
     # Placeholder Text and Signature
     text1 = "Η ποιότητα των προϊόντων σάρωσης της παρούσας Παρτίδας ελέγχθηκε δειγματοληπτικά από αρμόδια ομάδα δειγματοληπτικού ελέγχου µέσω προκαθορισμένων ελέγχων ποιότητας και σύμφωνα µε τις απαιτήσεις του Έργου Ψηφιοποίησης αρχείου Υποθηκοφυλακείων του Ελληνικού Κτηματολογίου.Οι δειγματοληπτικοί έλεγχοι των εγγράφων που σαρώθηκαν πραγματοποιήθηκαν µε οπτική αντιπαραβολή των πρωτότυπων εγγράφων και των σε ηλεκτρονική μορφή σαρωμένων εγγράφων. ∆ειγματοληπτικά ελέγχθηκε και η σχετική τεκμηρίωση των εγγράφων (µεταδεδοµένα) µε ανάλογο τρόπο."
     text2 = "Αποτελέσματα ελέγχου Παρτίδας: "
     text3 = "Κατόπιν διεκπεραίωσης δειγματοληπτικού ελέγχου, τα αποτελέσματα είναι τα κάτωθι:"
     result = Paragraph(f"{data['Status']}")
-    
+
     story.append(Paragraph(text1, styles["Normal"]))
     story.append(Spacer(1, inch))
     story.append(Paragraph(text2, styles["Normal"]))
@@ -119,7 +116,7 @@ def generate_pdf(data, file_path):
     story.append(Spacer(1, inch))
     story.append(result)
     story.append(Spacer(1, inch))
-    
+
     user1 = Paragraph(
         f"{data['Χρήστης Ανάδοχου']} Υπογραφή: ___________________________",
         styles["Normal"],

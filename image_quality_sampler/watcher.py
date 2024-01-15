@@ -4,7 +4,7 @@ import time
 import re
 from concurrent.futures import ThreadPoolExecutor
 
-import magic
+# import magic
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -141,9 +141,6 @@ class Watcher:
     def check_image(self, file):
         mime_type, _ = mimetypes.guess_type(file)
 
-        if not mime_type or not mime_type.startswith("image"):
-            mime_type = magic.from_file(file, mime=True)
-
         if mime_type and mime_type.startswith("image"):
             return 1
 
@@ -152,7 +149,6 @@ class Watcher:
             return 1
 
         return 0
-
 
     def recursive_image_count(self, path):
         all_files = [
